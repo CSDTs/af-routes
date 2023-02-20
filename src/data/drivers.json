@@ -1,0 +1,29 @@
+[
+	{
+		"full_name": "Hugh West",
+		"starting_address": "2555 Oak Valley Dr, Ann Arbor, MI 48103",
+		"coordinates": { "latitude": 42.24977, "longitude": -83.77077 },
+		"time_window": "",
+		"max_travel_time": 5,
+		"max_stops": 5,
+		"break_slots": null
+	},
+	{
+		"full_name": "Joyner Lucas",
+		"starting_address": "3300 Ann Arbor Saline Rd, Ann Arbor, MI 48103",
+		"coordinates": { "latitude": 42.23938, "longitude": -83.77182 },
+		"time_window": "",
+		"max_travel_time": 2.5,
+		"max_stops": 2,
+		"break_slots": null
+	},
+	{
+		"full_name": "Jane Doe",
+		"starting_address": "3400 Nixon Rd, Ann Arbor, MI 48105",
+		"coordinates": { "latitude": 42.323231, "longitude": -83.707939 },
+		"time_window": "",
+		"max_travel_time": 0.5,
+		"max_stops": 3,
+		"break_slots": null
+	}
+]
