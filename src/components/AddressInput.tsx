@@ -1,5 +1,8 @@
+import { useState } from "react";
+
 export default function AddressInput() {
 	const [address, setAddress] = useState<string | null>("");
+
 	return (
 		<TableInput
 			name={"address"}

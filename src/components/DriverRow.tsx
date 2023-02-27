@@ -78,7 +78,7 @@ const DriverRow = ({ rowsData, deleteTableRows, handleChange, handleCoordinateUp
 									handleDataChange(idx, "raw_data", null);
 								}}>
 								{" "}
-								{count.data && <LoadingIndicator isLoading={!raw_data && count.data != ""} />}
+								{count.data && starting_address != "" && <LoadingIndicator isLoading={!raw_data && count.data != ""} />}
 								{raw_data && (
 									<div className="flex  items-center gap-4 py-2 ">
 										<p className="text-gray-800 text-xs">
@@ -89,7 +89,7 @@ const DriverRow = ({ rowsData, deleteTableRows, handleChange, handleCoordinateUp
 										</p> */}
 										<button
 											className="text-white bg-gray-500 px-2 py-1 rounded-sm font-semi"
-											onClick={() => handleDataChange(count.idx, "starting_address", raw_data?.label)}>
+											onClick={() => handleDataChange(idx, "starting_address", raw_data?.label)}>
 											Update address
 										</button>
 									</div>

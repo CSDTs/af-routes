@@ -1,8 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { FormEvent, Fragment, useEffect, useRef, useState } from "react";
 import locationData from "../data/addresses.json";
-import { Location } from "../types";
+import { Coordinates, Location } from "../types";
 import LocationRow from "./LocationRow";
+import Modal from "./Modal";
+import ModalToolbar from "./ModalToolbar";
 import TableFooter from "./form/TableFooter";
 
 interface TableProps {
@@ -47,7 +49,7 @@ export default function LocationTable({ currentLocations, handleLocationsUpdate 
 		setRowsData(rowsInput);
 	};
 
-	const handleCoordinateUpdate = (index, coordinates) => {
+	const handleCoordinateUpdate = (index: number, coordinates: Coordinates) => {
 		const name = "coordinates";
 		const value = coordinates;
 		const rowsInput = [...rowsData];
@@ -165,7 +167,20 @@ export default function LocationTable({ currentLocations, handleLocationsUpdate 
 											</table>
 										</div>
 									</div>
-									<TableFooter buttons={tableButtons} />
+									<div className="mt-4">
+										<button
+											type="button"
+											className="inline-flex justify-center rounded-md border border-transparent bg-green-100 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+											onClick={addTableRows}>
+											+ Add New Destination
+										</button>{" "}
+										<button
+											type="button"
+											className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+											onClick={closeModal}>
+											Finish
+										</button>
+									</div>
 								</Dialog.Panel>
 							</Transition.Child>
 						</div>

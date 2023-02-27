@@ -10,7 +10,7 @@ type PropTypes = {
 
 export default function TableFooter({ buttons }: PropTypes) {
 	return (
-		<div className="mt-4 flex gap-2">
+		<>
 			{buttons &&
 				buttons.map((button) => {
 					return (
@@ -22,6 +22,6 @@ export default function TableFooter({ buttons }: PropTypes) {
 						</button>
 					);
 				})}
-		</div>
+		</>
 	);
 }

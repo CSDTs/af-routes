@@ -4,7 +4,7 @@ import driversData from "../data/drivers.json";
 
 import TableRows from "./TableRows";
 
-import { Driver } from "../types";
+import { Coordinates, Driver } from "../types";
 import DriverRow from "./DriverRow";
 
 interface TableProps {
@@ -14,13 +14,13 @@ interface TableProps {
 export default function DriverTable({ currentDrivers, handleDriversUpdate }: TableProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const initData = {
-		name: "",
+		full_name: "",
 		starting_address: "",
 		coordinates: null,
 		time_window: "",
 		max_travel_time: 0,
 		max_stops: 0,
-		break_slots: null,
+		break_slots: [],
 		available_options: [],
 		raw_data: null,
 	};
@@ -54,7 +54,7 @@ export default function DriverTable({ currentDrivers, handleDriversUpdate }: Tab
 		rowsInput[idx][key] = data;
 		setRowsData(rowsInput);
 	};
-	const handleCoordinateUpdate = (index, coordinates) => {
+	const handleCoordinateUpdate = (index: number, coordinates: Coordinates) => {
 		const name = "coordinates";
 		const value = coordinates;
 		const rowsInput = [...rowsData];
