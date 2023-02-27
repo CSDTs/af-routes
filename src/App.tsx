@@ -4,7 +4,7 @@ import reactLogo from "./assets/react.svg";
 import TwoColumn from "./pages/TwoColumn";
 
 function App() {
-	const ROUTE_APP_URL = "http://localhost:9966/?z=13&center=42.279658%2C-83.732128&hl=en&alt=0";
+	const ROUTE_APP_URL = "http://44.206.140.141:9966/?z=13&center=42.279658%2C-83.732128&hl=en&alt=0";
 
 	return (
 		<main className="h-screen flex ">
