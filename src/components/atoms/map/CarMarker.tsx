@@ -2,10 +2,12 @@ import L from "leaflet";
 import ReactDOMServer from "react-dom/server";
 import { ImTruck } from "react-icons/im";
 import { Marker, Popup } from "react-leaflet";
+import { Driver } from "../../../types";
 
 interface MarkerProps {
 	position: [number, number];
 	name: string;
+	vehicle: Driver;
 }
 
 // const getRandomColor = (str: string) => {
@@ -83,7 +85,35 @@ interface MarkerProps {
 // 	return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 // }
 
-const CarMarker = ({ position, name }: MarkerProps) => {
+const getRandomColor = (str: string) => {
+	const hash = str.split("").reduce((a, b) => (a << 5) - a + b.charCodeAt(0), 0);
+	let color = "#" + Math.floor(Math.abs(Math.sin(hash) * 16777215) % 16777215).toString(16);
+	if (color.length < 7) color = `${color}0`;
+	return color;
+};
+const TruckIcon = (idx: number) => {
+	const color = getRandomColor(idx.toString());
+
+	const colors = ["text-red-700", "text-blue-700", "text-green-700", "text-purple-700", "text-teal-400"];
+	const hexColors = ["#b91c1c", "#1d4ed8", "#15803d", "#7e22ce", "#334155"];
+	const colorIndex = idx % colors.length;
+	const textColorClass = colors[colorIndex];
+
+	return L.divIcon({
+		className: "my-custom-pin",
+		iconAnchor: [0, 24],
+		popupAnchor: [0, -36],
+		html: ReactDOMServer.renderToString(
+			<span
+				className={`text-red w-[2rem] h-[2rem] block -left-[0.5rem] -top-[0.5rem] relative  ${textColorClass} shadow-lg`}
+				// style={{ color: color }}
+			>
+				<ImTruck className={`w-full h-full `} />{" "}
+			</span>
+		),
+	});
+};
+const CarMarker = ({ position, vehicle }: MarkerProps) => {
 	// const getRandomColor = (str: string) => {
 	// 	const hash = str.split("").reduce((a, b) => (a << 5) - a + b.charCodeAt(0), 0);
 	// 	let color = "#" + Math.floor(Math.abs(Math.sin(hash) * 16777215) % 16777215).toString(16);
@@ -107,23 +137,29 @@ const CarMarker = ({ position, name }: MarkerProps) => {
 	//     // transform: rotate(45deg);
 	//     // border: 1px solid #FFFFFF`;
 
-	const icon = L.divIcon({
-		className: "my-custom-pin",
-		iconAnchor: [0, 24],
-		popupAnchor: [0, -36],
-		html: ReactDOMServer.renderToString(
-			<span
-				className={` w-[2rem] h-[2rem] block -left-[0.5rem] -top-[0.5rem] relative  text-blue-600`}
-				// style={{ color: color }}
-			>
-				<ImTruck className={`w-full h-full `} />{" "}
-			</span>
-		),
-	});
+	// const icon = L.divIcon({
+	// 	className: "my-custom-pin",
+	// 	iconAnchor: [0, 24],
+	// 	popupAnchor: [0, -36],
+	// 	html: ReactDOMServer.renderToString(
+	// 		<span
+	// 			className={` w-[2rem] h-[2rem] block -left-[0.5rem] -top-[0.5rem] relative  text-blue-${"8"}00`}
+	// 			// style={{ color: color }}
+	// 		>
+	// 			<ImTruck className={`w-full h-full `} />{" "}
+	// 		</span>
+	// 	),
+	// });
 
+	const icon = TruckIcon(vehicle.id);
 	return (
 		<Marker position={position} icon={icon}>
-			<Popup>{name}</Popup>
+			<Popup>
+				<div className="flex flex-col">
+					<span>{vehicle.name}</span>
+					<span>{vehicle.address}</span>
+				</div>
+			</Popup>
 		</Marker>
 	);
 };

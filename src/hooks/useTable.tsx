@@ -1,3 +1,4 @@
+import uniqueId from "lodash/uniqueId";
 import { useEffect, useRef, useState } from "react";
 import { convertToEpoch, convertToISO } from "../utils/convertDate";
 function filterObjectsWithKeys(objects, keys) {
@@ -52,7 +53,7 @@ const useTable = (mainData: any, initData: any) => {
 	}, [addresses]);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const addRow = (initData) => {
-		setData([...data, initData]);
+		setData([...data, , { id: uniqueId(), ...initData }]);
 	};
 	const removeRow = (index: number) => {
 		const newRows = [...data];

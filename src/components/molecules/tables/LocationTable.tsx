@@ -4,6 +4,7 @@ import DateTimePicker from "react-datetime-picker";
 import locationData from "../../../data/addresses.json";
 import { TableData } from "../../../types";
 
+import { uniqueId } from "lodash";
 import { useModalWithData } from "../../../hooks/useModal";
 import useTable from "../../../hooks/useTable";
 import { useRouteStore } from "../../../store";
@@ -41,8 +42,11 @@ const LocationTable = ({ dataKey }: TableProps) => {
 		setModalState(false);
 	};
 	const populateFromDatabase = () => {
-		tableHook.setData(locationData);
-		setData(dataKey, locationData);
+		const temp = locationData.map((destination) => {
+			return { id: parseInt(uniqueId()), ...destination };
+		});
+		tableHook.setData(temp);
+		setData(dataKey, temp);
 	};
 
 	return (

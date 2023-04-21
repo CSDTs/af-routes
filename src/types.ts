@@ -11,6 +11,7 @@ type Break = {
 	max_load: number[];
 };
 export interface Driver {
+	id: number;
 	name: string;
 	address: string;
 	coordinates: Coordinates | null;
@@ -23,6 +24,7 @@ export interface Driver {
 }
 
 export interface Location {
+	id: number;
 	address: string;
 	coordinates?: Coordinates | null;
 	drop_off_duration: number;

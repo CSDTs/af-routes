@@ -24,6 +24,7 @@ const RoutingMap = () => {
 	const optimization = useRequestStore((state) => state.optimization);
 	const cachedOptimizations = useRequestStore((state) => state.cachedOptimizations);
 	const [geojsonData, setGeojsonData] = useState<any>();
+	const setOptimization = useRequestStore((state) => state.setOptimization);
 	//Recalculate the bounds of the current map
 	useEffect(() => {
 		if (((locations && locations.length > 0) || (drivers && drivers.length > 0)) && mapRef.current) {
@@ -35,14 +36,27 @@ const RoutingMap = () => {
 			mapRef.current.fitBounds(bounds);
 		}
 		setGeojsonData(null);
+		setOptimization(null);
 	}, [locations, drivers]);
 
 	useEffect(() => {
-		getUniqueKey({ locations, drivers }).then((data) => {
-			setGeojsonData(cachedOptimizations.get(data)?.geometry);
-		});
+		if (optimization)
+			getUniqueKey({ locations, drivers }).then((data) => {
+				setGeojsonData(cachedOptimizations.get(data)?.geometry);
+			});
 	}, [optimization]);
-
+	function style(feature) {
+		const hexColors = ["#b91c1c", "#1d4ed8", "#15803d", "#7e22ce", "#22d3ee"];
+		const colorIndex = feature.geometry.properties.color % hexColors.length;
+		const textColorClass = hexColors[colorIndex];
+		return {
+			fillColor: "transparent",
+			weight: 2,
+			opacity: 1,
+			color: textColorClass, //Outline color
+			fillOpacity: 1,
+		};
+	}
 	return (
 		<MapContainer ref={mapRef} center={[42.279594, -83.732124]} zoom={15}>
 			<TileLayer
@@ -62,14 +76,15 @@ const RoutingMap = () => {
 
 			{drivers &&
 				drivers.length > 0 &&
-				drivers.map((drivers) => (
+				drivers.map((vehicle) => (
 					<CarMarker
-						position={[drivers.coordinates?.latitude as number, drivers.coordinates?.longitude as number]}
-						name={drivers.address}
-						key={drivers.address}
+						position={[vehicle.coordinates?.latitude as number, vehicle.coordinates?.longitude as number]}
+						name={vehicle.address}
+						vehicle={vehicle}
+						key={vehicle.address}
 					/>
 				))}
-			{geojsonData && <GeoJSON data={geojsonData} />}
+			{geojsonData && <GeoJSON data={geojsonData} style={style} />}
 		</MapContainer>
 	);
 };

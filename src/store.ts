@@ -7,6 +7,63 @@ interface LocationTableRow {
 	timeWindow: any[];
 	priority: string;
 }
+type TimeWindow = [number, number];
+type Coordinates = [number, number];
+type Geometry = {
+	type: string;
+	coordinates: Coordinates[];
+};
+
+type Step = {
+	id?: number;
+	service?: number;
+	waiting_time?: number;
+	job?: number;
+	type: string;
+	location: Coordinates;
+	load: number[];
+	arrival: number;
+	duration: number;
+	distance: number;
+};
+type Route = {
+	vehicle: number;
+	cost: number;
+	delivery: number[];
+	amount: number[];
+	pickup: number[];
+	service: number;
+	duration: number;
+	waiting_time: number;
+	distance: number;
+	steps: Step[];
+	geometry: string;
+};
+type Data = {
+	code: number;
+	summary: {
+		cost: number;
+		unassigned: number;
+		delivery: number[];
+		amount: number[];
+		pickup: number[];
+		service: number;
+		duration: number;
+		waiting_time: number;
+		distance: number;
+		computing_times: {
+			loading: number;
+			solving: number;
+			routing: number;
+		};
+	};
+	unassigned: any[];
+	routes: Route[];
+};
+interface Result {
+	geometry: Geometry[];
+	data: Data;
+}
 interface RouteState {
 	locations: Location[];
 	drivers: Driver[];
@@ -22,7 +79,7 @@ interface RequestState {
 	cachedDirections: Map<string, any>;
 	cachedIsochrones: Map<string, any>;
 	cachedOptimizations: Map<string, any>;
-	optimization: Object;
+	optimization: Result | null;
 	setOptimization: (optimization: any) => void;
 	setMap: <T>(mapName: string, cachedRequests: Map<string, T>) => void;
 	appendMap: <T>(mapName: string, address: string, response: T) => void;
@@ -58,7 +115,7 @@ export const useRequestStore = create<RequestState>((set) => ({
 	cachedDirections: new Map<string, any>(),
 	cachedIsochrones: new Map<string, any>(),
 	cachedOptimizations: new Map<string, any>(),
-	optimization: {},
+	optimization: null,
 	setOptimization: (optimization) => set({ optimization }),
 	setMap: <T>(mapName: string, cachedRequests: Map<string, T>) => set({ [mapName]: cachedRequests }),
 	appendMap: <T>(mapName: string, address: string, response: T) =>

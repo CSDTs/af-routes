@@ -6,6 +6,7 @@ import { useModalWithData } from "../../../hooks/useModal";
 import useTable from "../../../hooks/useTable";
 import { useRouteStore } from "../../../store";
 
+import { uniqueId } from "lodash";
 import { CloseBtn, LoadingIndicator, Modal, PrimaryBtn, SecondaryBtn } from "../../atoms/";
 
 interface TableProps {
@@ -20,11 +21,11 @@ const DriverTable = ({ dataKey }: TableProps) => {
 		address: "",
 		name: "",
 		duration: 0,
-		time_window: ["2023-04-22T01:18:00", "2023-04-22T05:18:00"],
+		time_window: ["00:00", "00:00"],
 		max_stops: 0,
 		break_slots: [
 			{
-				time_windows: [["2023-04-21T01:18:00", "2023-04-21T05:18:00"]],
+				time_windows: [["00:00", "00:00"]],
 				service: 0,
 			},
 		],
@@ -43,8 +44,11 @@ const DriverTable = ({ dataKey }: TableProps) => {
 		setModalState(false);
 	};
 	const populateFromDatabase = () => {
-		tableHook.setData(driverData);
-		setData(dataKey, driverData);
+		const temp = driverData.map((driver) => {
+			return { id: parseInt(uniqueId()), ...driver };
+		});
+		tableHook.setData(temp);
+		setData(dataKey, temp);
 	};
 	return (
 		<>
