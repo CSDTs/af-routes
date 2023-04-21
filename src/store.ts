@@ -4,7 +4,7 @@ import { Driver, Location } from "./types";
 interface LocationTableRow {
 	address: string;
 	duration: number;
-	timeWindow: string;
+	timeWindow: any[];
 	priority: string;
 }
 interface RouteState {
@@ -21,6 +21,9 @@ interface RouteState {
 interface RequestState {
 	cachedDirections: Map<string, any>;
 	cachedIsochrones: Map<string, any>;
+	cachedOptimizations: Map<string, any>;
+	optimization: Object;
+	setOptimization: (optimization: any) => void;
 	setMap: <T>(mapName: string, cachedRequests: Map<string, T>) => void;
 	appendMap: <T>(mapName: string, address: string, response: T) => void;
 	[key: string]: any;
@@ -32,28 +35,31 @@ interface LocationTableState {
 }
 
 export const useRouteStore = create<RouteState>()(
-	devtools(
-		persist(
-			(set) => ({
-				locations: [],
-				drivers: [],
-				setLocations: (locations) => set({ locations }),
-				setDrivers: (drivers) => set({ drivers }),
-				appendLocation: (location) => set((state) => ({ locations: [...state.locations, location] })),
-				appendDriver: (driver) => set((state) => ({ drivers: [...state.drivers, driver] })),
-				setData: <T>(arrName: string, data: T) => set({ [arrName]: data }),
-				appendData: <T>(arrName: string, data: T) => set((state) => ({ [arrName]: [...state[arrName], data] })),
-			}),
-			{
-				name: "route-storage",
-			}
-		)
-	)
+	// devtools(
+	// 	persist(
+	(set) => ({
+		locations: [],
+		drivers: [],
+		setLocations: (locations) => set({ locations }),
+		setDrivers: (drivers) => set({ drivers }),
+		appendLocation: (location) => set((state) => ({ locations: [...state.locations, location] })),
+		appendDriver: (driver) => set((state) => ({ drivers: [...state.drivers, driver] })),
+		setData: <T>(arrName: string, data: T) => set({ [arrName]: data }),
+		appendData: <T>(arrName: string, data: T) => set((state) => ({ [arrName]: [...state[arrName], data] })),
+	})
+	// 	{
+	// 		name: "route-storage",
+	// 	}
+	// )
+	// )
 );
 
 export const useRequestStore = create<RequestState>((set) => ({
 	cachedDirections: new Map<string, any>(),
 	cachedIsochrones: new Map<string, any>(),
+	cachedOptimizations: new Map<string, any>(),
+	optimization: {},
+	setOptimization: (optimization) => set({ optimization }),
 	setMap: <T>(mapName: string, cachedRequests: Map<string, T>) => set({ [mapName]: cachedRequests }),
 	appendMap: <T>(mapName: string, address: string, response: T) =>
 		set((state) => ({

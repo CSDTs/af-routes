@@ -16,11 +16,22 @@ const DriverTable = ({ dataKey }: TableProps) => {
 	const currentDrivers = useRouteStore((state) => state[dataKey]);
 	const setData = useRouteStore((state) => state.setData);
 	const [current, setCurrent] = useState(0);
-	const initData = { address: "", name: "", duration: 0, timeWindow: "", maxStops: 0, breakSlots: "", coordinates: {} };
-	console.log(currentDrivers);
-	const tableHook = useTable(currentDrivers, [
-		{ address: "", name: "", duration: 0, timeWindow: "", maxStops: 0, breakSlots: "", coordinates: {} },
-	]);
+	const initData = {
+		address: "",
+		name: "",
+		duration: 0,
+		time_window: ["2023-04-22T01:18:00", "2023-04-22T05:18:00"],
+		max_stops: 0,
+		break_slots: [
+			{
+				time_windows: [["2023-04-21T01:18:00", "2023-04-21T05:18:00"]],
+				service: 0,
+			},
+		],
+		coordinates: {},
+	};
+
+	const tableHook = useTable(currentDrivers, [initData]);
 
 	const closeModal = () => {
 		const filteredData = tableHook.data.filter((data) => {
@@ -31,37 +42,40 @@ const DriverTable = ({ dataKey }: TableProps) => {
 		}
 		setModalState(false);
 	};
-
+	const populateFromDatabase = () => {
+		tableHook.setData(driverData);
+		setData(dataKey, driverData);
+	};
 	return (
 		<>
-			<div className="flex items-center justify-center mx-auto gap-3">
+			<div className="flex items-center justify-center gap-3 mx-auto">
 				<PrimaryBtn clickHandler={() => setModalState(true)}>Update Table</PrimaryBtn>
-				<SecondaryBtn clickHandler={() => setData(dataKey, driverData)}>Autofill</SecondaryBtn>
+				<SecondaryBtn clickHandler={populateFromDatabase}>Autofill</SecondaryBtn>
 			</div>
 
 			<Modal title="Drivers" isActive={modalOpen} handleClose={closeModal}>
 				<div className="mt-2">
 					<p className="text-sm text-gray-500">Fill out the table below to start adding drivers to the map.</p>
 				</div>
-				<div className="relative rounded-xl overflow-auto">
-					<div className="shadow-sm my-8">
+				<div className="relative overflow-auto rounded-xl">
+					<div className="my-8 shadow-sm">
 						<div className="overflow-x-auto min-h-[24rem]">
-							<table className="table-auto w-full">
+							<table className="w-full table-auto">
 								<thead>
 									<tr>
 										<th className="px-4 py-2">Starting Location</th>
 										<th className="px-4 py-2">Driver Name</th>
-										<th className="px-4 py-2">Duration</th>
+										<th className="px-4 py-2">Max Travel Time</th>
 										<th className="px-4 py-2">Time Window</th>
 										<th className="px-4 py-2">Max Stops</th>
 										<th className="px-4 py-2">Breaks</th>
-										<th className="px-4 py-2 invisible">Remove</th>
+										<th className="invisible px-4 py-2">Remove</th>
 									</tr>
 								</thead>
 								<tbody>
 									{tableHook.data.map((row, index) => (
 										<tr key={index}>
-											<td className="border px-4 py-2">
+											<td className="px-4 py-2 border">
 												<div className="relative">
 													<div className="flex flex-col gap-2">
 														<input
@@ -78,11 +92,11 @@ const DriverTable = ({ dataKey }: TableProps) => {
 															</div>
 														)}
 														{current == index && tableHook.addresses.length > 0 && (
-															<div className="absolute top-full left-0 w-full bg-white border border-gray-300 z-10">
+															<div className="absolute left-0 z-10 w-full bg-white border border-gray-300 top-full">
 																{tableHook.addresses.map((address, i) => (
 																	<div
 																		key={i}
-																		className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+																		className="px-4 py-2 cursor-pointer hover:bg-gray-200"
 																		onClick={() => tableHook.handleSelect(address, index)}>
 																		{address.displayName}
 																	</div>
@@ -92,7 +106,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 													</div>
 												</div>
 											</td>{" "}
-											<td className="border px-4 py-2">
+											<td className="px-4 py-2 border">
 												<input
 													type="text"
 													className="w-full"
@@ -101,45 +115,76 @@ const DriverTable = ({ dataKey }: TableProps) => {
 													onFocus={() => setCurrent(index)}
 												/>
 											</td>
-											<td className="border px-4 py-2">
+											<td className="w-1/12 px-4 py-2 border">
 												<input
 													type="number"
 													className="w-full"
-													value={row.duration}
-													onChange={(event) => tableHook.handleChange(event, index, "duration")}
+													value={row.max_travel_time}
+													onChange={(event) => tableHook.handleChange(event, index, "max_travel_time")}
 													onFocus={() => setCurrent(index)}
 												/>
 											</td>
-											<td className="border px-4 py-2">
-												<input
-													type="text"
-													className="w-full"
-													value={row.timeWindow}
-													onChange={(event) => tableHook.handleChange(event, index, "timeWindow")}
-													onFocus={() => setCurrent(index)}
-												/>
+											<td className="px-4 py-2 border">
+												<div className="flex flex-col">
+													<label className="block">
+														<span className="block text-sm font-medium text-slate-700">Start</span>
+														<input
+															type="time"
+															value={row.time_window[0]}
+															onChange={(event) => tableHook.handleChange(event, index, "timeWindowStart")}
+														/>
+													</label>{" "}
+													<label className="block">
+														<span className="block text-sm font-medium text-slate-700">End</span>
+														<input
+															type="time"
+															value={row.time_window[1]}
+															onChange={(event) => tableHook.handleChange(event, index, "timeWindowEnd")}
+														/>
+													</label>
+												</div>
 											</td>
-											<td className="border px-4 py-2">
+											<td className="w-1/12 px-4 py-2 border">
 												<input
 													type="text"
 													className="w-full"
-													value={row.maxStops}
-													onChange={(event) => tableHook.handleChange(event, index, "maxStops")}
+													value={row.max_stops}
+													onChange={(event) => tableHook.handleChange(event, index, "max_stops")}
 													onFocus={() => setCurrent(index)}
 												/>
 											</td>{" "}
-											<td className="border px-4 py-2">
-												<input
+											<td className="px-4 py-2 border">
+												{/* <input
 													type="text"
 													className="w-full"
-													value={row.breakSlots}
-													onChange={(event) => tableHook.handleChange(event, index, "breakSlots")}
+													value={row.break_slots}
+													onChange={(event) => tableHook.handleChange(event, index, "break_slots")}
 													onFocus={() => setCurrent(index)}
-												/>
+												/>{" "} */}
+												<div className="flex flex-col">
+													<label className="block">
+														<span className="block text-sm font-medium text-slate-700">Start</span>
+														<input
+															type="time"
+															value={row.break_slots[0].time_windows[0][0]}
+															onChange={(event) => tableHook.handleChange(event, index, "breakSlotStart")}
+															onFocus={() => setCurrent(index)}
+														/>
+													</label>{" "}
+													<label className="block">
+														<span className="block text-sm font-medium text-slate-700">End</span>
+														<input
+															type="time"
+															value={row.break_slots[0].time_windows[0][1]}
+															onChange={(event) => tableHook.handleChange(event, index, "breakSlotEnd")}
+															onFocus={() => setCurrent(index)}
+														/>
+													</label>
+												</div>
 											</td>
-											<td className="border px-4 py-2">
+											<td className="px-4 py-2 border">
 												<button
-													className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+													className="px-2 py-1 font-bold text-white bg-red-500 rounded hover:bg-red-700"
 													onClick={() => tableHook.removeRow(index)}
 													onFocus={() => setCurrent(index)}>
 													Remove
@@ -150,7 +195,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 								</tbody>
 							</table>
 							<button
-								className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded my-2"
+								className="px-2 py-1 my-2 font-bold text-white bg-green-500 rounded hover:bg-green-700"
 								onClick={() => tableHook.addRow(initData)}>
 								Add Row
 							</button>

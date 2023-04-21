@@ -30,14 +30,14 @@ function App() {
 	const prevTab = () => setSelectedIndex(selectedIndex - 1);
 
 	return (
-		<main className="h-screen flex flex-col md:flex-row">
-			<section className=" md:7/12 lg:w-9/12 bg-slate-500 h-full w-full z-0">
+		<main className="flex flex-col h-full lg:h-screen lg:flex-row ">
+			<section className="z-0 w-full overflow-hidden md:w-full lg:w-7/12 xl:w-9/12 bg-slate-500 h-6/12 lg:h-full aspect-square lg:aspect-auto">
 				<RoutingMap />
 			</section>
-			<section className="bg-slate-50 h-full md:w-3/12 flex flex-col justify-between  w-full ">
-				<div className="w-full px-4 py-4 sm:px-0 h-5/6">
+			<section className="flex flex-col justify-between w-full bg-slate-50 h-6/12 md:w-full lg:w-5/12 lg:h-full ">
+				<div className="w-full py-4 lg:px-2 xl:px-4 h-5/6 lg:py-8 ">
 					<Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
-						<Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1 mb-5 w-5/6 mx-auto">
+						<Tab.List className="flex w-5/6 p-1 mx-auto mb-5 space-x-1 rounded-xl bg-blue-900/20 ">
 							<Tab key={"tab-0"} className={({ selected }) => calculateTabTailwind(selected)}>
 								Destinations
 							</Tab>
@@ -45,10 +45,10 @@ function App() {
 								Drivers
 							</Tab>
 							<Tab key={"tab-2"} className={({ selected }) => calculateTabTailwind(selected)}>
-								Calculate Routes
+								Calculate
 							</Tab>
 						</Tab.List>
-						<Tab.Panels className="mt-2 h-full px-8">
+						<Tab.Panels className="h-full px-8 mt-2 overflow-scroll">
 							<Tab.Panel key={0} className={tabPanelStyle}>
 								<DestinationsTab />
 							</Tab.Panel>
@@ -60,10 +60,12 @@ function App() {
 							</Tab.Panel>
 						</Tab.Panels>
 					</Tab.Group>
-				</div>
-				<div className={`w-10/12  mx-auto px-10  my-10 py-3 rounded-xl  flex  gap-2 bg-slate-200`}>
-					<PrevBtn clickHandler={prevTab} isDisabled={selectedIndex <= 0} />
-					<NextBtn clickHandler={nextTab} isDisabled={selectedIndex >= 2} />
+				</div>{" "}
+				<div className="flex items-center self-center w-full py-4 lg:px-2 xl:px-4 h-5/6 lg:py-8">
+					<div className="flex items-center self-center w-full gap-2 px-8 py-4 mt-2">
+						<PrevBtn clickHandler={prevTab} isDisabled={selectedIndex <= 0} />
+						<NextBtn clickHandler={nextTab} isDisabled={selectedIndex >= 2} />
+					</div>
 				</div>
 			</section>
 		</main>

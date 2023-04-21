@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { convertToEpoch, convertToISO } from "../utils/convertDate";
 function filterObjectsWithKeys(objects, keys) {
 	return objects.filter((obj) => {
 		return keys.every((key) => {
@@ -15,11 +16,24 @@ interface Address {
 interface TableRow {
 	address: string;
 	duration: number;
-	timeWindow: string;
-	priority: string;
+	time_windows: any[];
+	priority: number;
 	coordinates: Object;
-	breakSlots: string;
-	maxStops: number;
+	break_slots?: Object[];
+	max_stops: number;
+	name?: string;
+	time_window?: [number, number];
+
+	timeWindowStart: number;
+	timeWindowEnd: number;
+	breakSlotStart: number;
+	breakSlotEnd: number;
+}
+
+function convertHMS(timeString: string) {
+	const arr: string[] = timeString.split(":");
+	const seconds: number = parseInt(arr[0]) * 3600 + parseInt(arr[1]) * 60;
+	return seconds;
 }
 const useTable = (mainData: any, initData: any) => {
 	const [data, setData] = useState<Array<any>>(mainData);
@@ -112,6 +126,31 @@ const useTable = (mainData: any, initData: any) => {
 
 		if (key === "address" && event.target.value === "") {
 			setAddresses([]);
+		}
+
+		if (key === "timeWindowStart") {
+			const newRows = [...data];
+			console.log(event.target.value);
+			newRows[index]["time_windows"][0][0] = event.target.value;
+
+			setData(newRows);
+		}
+		if (key === "timeWindowEnd") {
+			const newRows = [...data];
+			console.log(event.target.value);
+			newRows[index]["time_windows"][0][1] = event.target.value;
+
+			setData(newRows);
+		}
+		if (key === "breakSlotStart") {
+			const newRows = [...data];
+			newRows[index]["break_slots"][0].time_windows[0][0] = event.target.value;
+			setData(newRows);
+		}
+		if (key === "breakSlotEnd") {
+			const newRows = [...data];
+			newRows[index]["break_slots"][0].time_windows[0][1] = event.target.value;
+			setData(newRows);
 		}
 	};
 

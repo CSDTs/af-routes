@@ -2,15 +2,22 @@ export interface Coordinates {
 	latitude: number | string;
 	longitude: number | string;
 }
-
+type TimeWindow = [string, string];
+type Break = {
+	id: number;
+	time_windows: TimeWindow[];
+	service: number;
+	description: string;
+	max_load: number[];
+};
 export interface Driver {
 	name: string;
 	address: string;
 	coordinates: Coordinates | null;
-	time_window: string;
+	time_window: TimeWindow;
 	max_travel_time: number;
 	max_stops: number;
-	break_slots: string;
+	break_slots: Break[];
 	raw_data?: any;
 	available_options?: any;
 }
@@ -18,9 +25,9 @@ export interface Driver {
 export interface Location {
 	address: string;
 	coordinates?: Coordinates | null;
-	drop_off: number;
-	is_high_priority: boolean;
-	time_slots: string;
+	drop_off_duration: number;
+	priority: number;
+	time_windows: TimeWindow[];
 	raw_data?: any;
 	available_options?: any;
 }
