@@ -1,4 +1,10 @@
-const PrevBtn = ({ clickHandler, isDisabled }) => {
+import { FC, MouseEventHandler } from "react";
+interface BtnProps {
+	clickHandler: MouseEventHandler;
+	isDisabled: boolean;
+}
+
+const PrevBtn: FC<BtnProps> = ({ clickHandler, isDisabled }) => {
 	return (
 		<button
 			onClick={clickHandler}

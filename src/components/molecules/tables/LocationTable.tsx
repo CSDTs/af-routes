@@ -81,7 +81,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 															<span className="sr-only">Starting Address</span>
 															<input
 																type="text"
-																className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
+																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 																value={row.address}
 																onChange={(event) => tableHook.handleChange(event, index, "address")}
 																onFocus={() => setCurrent(index)}
@@ -116,7 +116,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 														value={row.drop_off_duration}
 														onChange={(event) => tableHook.handleChange(event, index, "duration")}
 														onFocus={() => setCurrent(index)}
-														className="w-full"
+														className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 													/>
 												</label>
 											</td>
@@ -126,16 +126,20 @@ const LocationTable = ({ dataKey }: TableProps) => {
 														<span className="block text-sm font-medium text-slate-700">Start</span>
 														<input
 															type="time"
+															onFocus={() => setCurrent(index)}
 															value={row.time_windows[0][0]}
 															onChange={(event) => tableHook.handleChange(event, index, "timeWindowStart")}
+															className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 														/>
 													</label>{" "}
 													<label className="block">
 														<span className="block text-sm font-medium text-slate-700">End</span>
 														<input
 															type="time"
+															onFocus={() => setCurrent(index)}
 															value={row.time_windows[0][1]}
 															onChange={(event) => tableHook.handleChange(event, index, "timeWindowEnd")}
+															className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 														/>
 													</label>
 												</div>
@@ -145,10 +149,10 @@ const LocationTable = ({ dataKey }: TableProps) => {
 													<span className="sr-only">Priority</span>
 													<input
 														type="number"
-														className="w-full"
 														value={row.priority}
 														onChange={(event) => tableHook.handleChange(event, index, "priority")}
 														onFocus={() => setCurrent(index)}
+														className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 													/>
 												</label>
 											</td>

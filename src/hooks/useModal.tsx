@@ -19,7 +19,7 @@ export const useModalWithData = <T,>(
 	const [modalOpen, setModalOpen] = useModal(initialMode);
 	const [selected, setSelected] = useState<T | null>(initialSelected);
 	const setModalState = (state: boolean) => {
-		setModalOpen(state);
+		setModalOpen();
 		if (state === false) {
 			setSelected(null);
 		}
