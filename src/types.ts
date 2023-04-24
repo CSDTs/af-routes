@@ -58,3 +58,130 @@ export type TableData = {
 	dataKey: string;
 	populationData: any;
 };
+export type Step = {
+	id?: number;
+	service?: number;
+	waiting_time?: number;
+	job?: number;
+	type?: string;
+	location: Coordinates;
+	load: number[];
+	arrival: number;
+	duration: number;
+	distance: number;
+	geometry?: string;
+};
+export type Route = {
+	vehicle: number;
+	cost: number;
+	delivery: number[];
+	amount: number[];
+	pickup: number[];
+	service: number;
+	duration: number;
+	waiting_time: number;
+	distance: number;
+	steps: Step[];
+	geometry: string;
+};
+export type Data = {
+	code: number;
+	summary: {
+		cost: number;
+		unassigned: number;
+		delivery: number[];
+		amount: number[];
+		pickup: number[];
+		service: number;
+		duration: number;
+		waiting_time: number;
+		distance: number;
+		computing_times: {
+			loading: number;
+			solving: number;
+			routing: number;
+		};
+	};
+	unassigned: any[];
+	routes: Route[];
+};
+// type TimeWindow = [number, number];
+// type Coordinates = [number, number]; //lon, lat
+// type Break = {
+// 	id: number;
+// 	time_windows: TimeWindow[];
+// 	service: number;
+// 	description: string;
+// 	max_load: number[];
+// };
+// interface Job {
+// 	id: number;
+// 	description?: string; //address
+// 	location: Coordinates; //coordinates
+// 	setup?: number;
+// 	service: number; //drop off
+// 	priority: number;
+// 	time_windows: TimeWindow[];
+// }
+
+// interface Vehicle {
+// 	id: number;
+// 	description?: string; //name
+// 	start: Coordinates; //coordinates
+// 	time_window: TimeWindow;
+// 	breaks: Break[];
+// 	max_travel_time: number;
+// 	max_tasks: number; //max stops
+// }
+
+// type Geometry = {
+// 	type: string;
+// 	coordinates: Coordinates[];
+// };
+
+// type Step = {
+// 	id?: number;
+// 	service?: number;
+// 	waiting_time?: number;
+// 	job?: number;
+// 	type: string;
+// 	location: Coordinates;
+// 	load: number[];
+// 	arrival: number;
+// 	duration: number;
+// 	distance: number;
+// };
+// type Route = {
+// 	vehicle: number;
+// 	cost: number;
+// 	delivery: number[];
+// 	amount: number[];
+// 	pickup: number[];
+// 	service: number;
+// 	duration: number;
+// 	waiting_time: number;
+// 	distance: number;
+// 	steps: Step[];
+// 	geometry: string;
+// };
+// type Data = {
+// 	code: number;
+// 	summary: {
+// 		cost: number;
+// 		unassigned: number;
+// 		delivery: number[];
+// 		amount: number[];
+// 		pickup: number[];
+// 		service: number;
+// 		duration: number;
+// 		waiting_time: number;
+// 		distance: number;
+// 		computing_times: {
+// 			loading: number;
+// 			solving: number;
+// 			routing: number;
+// 		};
+// 	};
+// 	unassigned: any[];
+// 	routes: Route[];
+// };

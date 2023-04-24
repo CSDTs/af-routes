@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const useNominatim = () => {
-	const reverseGeocode = async (coordinates) => {
+	const reverseGeocode = async (coordinates: { lat: number; lon: number }) => {
 		const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
 			params: {
 				lat: coordinates.lat,

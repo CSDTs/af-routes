@@ -1,6 +1,5 @@
 import { useState } from "react";
 import driverData from "../../../data/drivers.json";
-import { TableData } from "../../../types";
 
 import { useModalWithData } from "../../../hooks/useModal";
 import useTable from "../../../hooks/useTable";
@@ -82,13 +81,16 @@ const DriverTable = ({ dataKey }: TableProps) => {
 											<td className="px-4 py-2 border">
 												<div className="relative">
 													<div className="flex flex-col gap-2">
-														<input
-															type="text"
-															className="w-full"
-															value={row.address}
-															onChange={(event) => tableHook.handleChange(event, index, "address")}
-															onFocus={() => setCurrent(index)}
-														/>
+														<label className="block">
+															<span className="sr-only">Starting Address</span>
+															<input
+																type="text"
+																className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
+																value={row.address}
+																onChange={(event) => tableHook.handleChange(event, index, "address")}
+																onFocus={() => setCurrent(index)}
+															/>
+														</label>
 
 														{current == index && tableHook.loading && (
 															<div className="absolute top-0 right-0 mt-2 mr-2">
@@ -111,22 +113,28 @@ const DriverTable = ({ dataKey }: TableProps) => {
 												</div>
 											</td>{" "}
 											<td className="px-4 py-2 border">
-												<input
-													type="text"
-													className="w-full"
-													value={row.name}
-													onChange={(event) => tableHook.handleChange(event, index, "name")}
-													onFocus={() => setCurrent(index)}
-												/>
+												<label className="block">
+													<span className="sr-only">Driver Name</span>
+													<input
+														type="text"
+														className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
+														value={row.name}
+														onChange={(event) => tableHook.handleChange(event, index, "name")}
+														onFocus={() => setCurrent(index)}
+													/>{" "}
+												</label>
 											</td>
 											<td className="w-1/12 px-4 py-2 border">
-												<input
-													type="number"
-													className="w-full"
-													value={row.max_travel_time}
-													onChange={(event) => tableHook.handleChange(event, index, "max_travel_time")}
-													onFocus={() => setCurrent(index)}
-												/>
+												<label className="block">
+													<span className="sr-only">Max Travel Time</span>
+													<input
+														type="number"
+														className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
+														value={row.max_travel_time}
+														onChange={(event) => tableHook.handleChange(event, index, "max_travel_time")}
+														onFocus={() => setCurrent(index)}
+													/>
+												</label>
 											</td>
 											<td className="px-4 py-2 border">
 												<div className="flex flex-col">
@@ -135,6 +143,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 														<input
 															type="time"
 															value={row.time_window[0]}
+															className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 															onChange={(event) => tableHook.handleChange(event, index, "timeWindowStart")}
 														/>
 													</label>{" "}
@@ -143,34 +152,32 @@ const DriverTable = ({ dataKey }: TableProps) => {
 														<input
 															type="time"
 															value={row.time_window[1]}
+															className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 															onChange={(event) => tableHook.handleChange(event, index, "timeWindowEnd")}
 														/>
 													</label>
 												</div>
 											</td>
 											<td className="w-1/12 px-4 py-2 border">
-												<input
-													type="text"
-													className="w-full"
-													value={row.max_stops}
-													onChange={(event) => tableHook.handleChange(event, index, "max_stops")}
-													onFocus={() => setCurrent(index)}
-												/>
+												<label className="block">
+													<span className="sr-only">Max Stops</span>
+													<input
+														type="text"
+														className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
+														value={row.max_stops}
+														onChange={(event) => tableHook.handleChange(event, index, "max_stops")}
+														onFocus={() => setCurrent(index)}
+													/>
+												</label>
 											</td>{" "}
 											<td className="px-4 py-2 border">
-												{/* <input
-													type="text"
-													className="w-full"
-													value={row.break_slots}
-													onChange={(event) => tableHook.handleChange(event, index, "break_slots")}
-													onFocus={() => setCurrent(index)}
-												/>{" "} */}
 												<div className="flex flex-col">
 													<label className="block">
 														<span className="block text-sm font-medium text-slate-700">Start</span>
 														<input
 															type="time"
 															value={row.break_slots[0].time_windows[0][0]}
+															className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 															onChange={(event) => tableHook.handleChange(event, index, "breakSlotStart")}
 															onFocus={() => setCurrent(index)}
 														/>
@@ -180,6 +187,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 														<input
 															type="time"
 															value={row.break_slots[0].time_windows[0][1]}
+															className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 															onChange={(event) => tableHook.handleChange(event, index, "breakSlotEnd")}
 															onFocus={() => setCurrent(index)}
 														/>

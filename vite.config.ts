@@ -1,11 +1,16 @@
-import basicSsl from "@vitejs/plugin-basic-ssl";
+const { resolve } = require("path");
 import react from "@vitejs/plugin-react";
+import path from "path";
 import { defineConfig } from "vite";
-
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [react()],
 	envDir: "./src",
+	resolve: {
+		alias: {
+			"@": path.resolve(__dirname, "./src/"),
+		},
+	},
 	server: {
 		watch: {
 			usePolling: true,

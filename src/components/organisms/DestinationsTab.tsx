@@ -33,7 +33,7 @@ const DestinationsTab = () => {
 											{listing.coordinates?.latitude || ""}, {listing.coordinates?.longitude || ""}
 										</li>
 										<li>&middot;</li>
-										<li>{listing.drop_off} minutes</li>
+										<li>{listing.drop_off_duration} minutes</li>
 										<li>&middot;</li>
 										<li>{listing.priority ? "High" : "Normal"} priority</li>
 									</ListingUnorderedList>

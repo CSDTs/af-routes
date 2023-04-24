@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import DateTimePicker from "react-datetime-picker";
 import locationData from "../../../data/addresses.json";
-import { TableData } from "../../../types";
 
 import { uniqueId } from "lodash";
 import { useModalWithData } from "../../../hooks/useModal";
 import useTable from "../../../hooks/useTable";
 import { useRouteStore } from "../../../store";
-import { convertToEpoch, convertToISO, newEpochDate, newISODate } from "../../../utils/convertDate";
+
 import { CloseBtn, Modal, PrimaryBtn, SecondaryBtn } from "../../atoms/";
 import LoadingIndicator from "../../atoms/indicators/LoadingIndicator";
 interface TableProps {
@@ -18,7 +16,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 	const { modalOpen, setModalState } = useModalWithData();
 	const currentLocations = useRouteStore((state) => state[dataKey]);
 	const setData = useRouteStore((state) => state.setData);
-	const newDate = newISODate();
+
 	const [current, setCurrent] = useState(0);
 	const initData = {
 		address: "",
@@ -79,13 +77,16 @@ const LocationTable = ({ dataKey }: TableProps) => {
 											<td className="w-5/12 px-4 py-2 border">
 												<div className="relative">
 													<div className="flex flex-col gap-2">
-														<input
-															type="text"
-															className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
-															value={row.address}
-															onChange={(event) => tableHook.handleChange(event, index, "address")}
-															onFocus={() => setCurrent(index)}
-														/>
+														<label className="block">
+															<span className="sr-only">Starting Address</span>
+															<input
+																type="text"
+																className="items-center hidden w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
+																value={row.address}
+																onChange={(event) => tableHook.handleChange(event, index, "address")}
+																onFocus={() => setCurrent(index)}
+															/>
+														</label>
 
 														{current == index && tableHook.loading && (
 															<div className="absolute top-0 right-0 mt-2 mr-2">
@@ -108,22 +109,18 @@ const LocationTable = ({ dataKey }: TableProps) => {
 												</div>
 											</td>
 											<td className="px-4 py-2 border">
-												<input
-													type="number"
-													value={row.drop_off_duration}
-													onChange={(event) => tableHook.handleChange(event, index, "duration")}
-													onFocus={() => setCurrent(index)}
-													className="w-full"
-												/>
+												<label className="block">
+													<span className="sr-only">Drop Off Duration</span>
+													<input
+														type="number"
+														value={row.drop_off_duration}
+														onChange={(event) => tableHook.handleChange(event, index, "duration")}
+														onFocus={() => setCurrent(index)}
+														className="w-full"
+													/>
+												</label>
 											</td>
 											<td className="px-4 py-2 border">
-												{/* <input
-													type="text"
-													className="w-full"
-													value={row.timeWindow}
-													onChange={(event) => tableHook.handleChange(event, index, "timeWindow")}
-													onFocus={() => setCurrent(index)}
-												/> */}
 												<div className="flex flex-col">
 													<label className="block">
 														<span className="block text-sm font-medium text-slate-700">Start</span>
@@ -144,13 +141,16 @@ const LocationTable = ({ dataKey }: TableProps) => {
 												</div>
 											</td>
 											<td className="px-4 py-2 border">
-												<input
-													type="number"
-													className="w-full"
-													value={row.priority}
-													onChange={(event) => tableHook.handleChange(event, index, "priority")}
-													onFocus={() => setCurrent(index)}
-												/>
+												<label className="block">
+													<span className="sr-only">Priority</span>
+													<input
+														type="number"
+														className="w-full"
+														value={row.priority}
+														onChange={(event) => tableHook.handleChange(event, index, "priority")}
+														onFocus={() => setCurrent(index)}
+													/>
+												</label>
 											</td>
 											<td className="px-4 py-2 border">
 												<button

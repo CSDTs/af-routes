@@ -180,16 +180,16 @@ const useOpenRoute = () => {
 			return polyline.toGeoJSON(route.geometry);
 		});
 
-		const coloredGeometry = geometry.map((route, idx) => {
+		const coloredGeometry = geometry.map((route: any, idx: number) => {
 			return { ...route, properties: { color: response.data.routes[idx].vehicle } };
 		});
 
 		if (!response.data) throw new Error("Could not get directions. Please try again later..");
-		console.log(coloredGeometry);
-		console.log("appending to cache");
-		appendMap("cachedOptimizations", uniqueKey, { geometry, data: response.data });
 
-		return { geometry, data: response.data };
+		console.log("appending to cache");
+		appendMap("cachedOptimizations", uniqueKey, { geometry: coloredGeometry, data: response.data });
+
+		return { coloredGeometry, data: response.data };
 	};
 	return { getDirections, getDirectionsAdvanced, getOptimization };
 };

@@ -1,13 +1,8 @@
+import filterObjectsWithKeys from "@/utils/filterWithKeys";
 import uniqueId from "lodash/uniqueId";
 import { useEffect, useRef, useState } from "react";
 import { convertToEpoch, convertToISO } from "../utils/convertDate";
-function filterObjectsWithKeys(objects, keys) {
-	return objects.filter((obj) => {
-		return keys.every((key) => {
-			return obj.hasOwnProperty(key) && obj[key];
-		});
-	});
-}
+
 interface Address {
 	displayName: string;
 	lat: number;
@@ -29,20 +24,18 @@ interface TableRow {
 	timeWindowEnd: number;
 	breakSlotStart: number;
 	breakSlotEnd: number;
+	max_travel_time?: number;
 }
 
-function convertHMS(timeString: string) {
-	const arr: string[] = timeString.split(":");
-	const seconds: number = parseInt(arr[0]) * 3600 + parseInt(arr[1]) * 60;
-	return seconds;
-}
 const useTable = (mainData: any, initData: any) => {
 	const [data, setData] = useState<Array<any>>(mainData);
 	const [addresses, setAddresses] = useState<Address[]>([]);
 	const [loading, setLoading] = useState(false);
+
 	useEffect(() => {
 		if (mainData.length == 0) setData([...mainData, ...initData]);
 	}, [mainData]);
+
 	useEffect(() => {
 		if (addresses.length > 0) {
 			document.addEventListener("click", handleClickOutside);
@@ -51,8 +44,9 @@ const useTable = (mainData: any, initData: any) => {
 			};
 		}
 	}, [addresses]);
-	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const addRow = (initData) => {
+
+	const timeoutRef = useRef<any>(null);
+	const addRow = (initData: any) => {
 		setData([...data, , { id: uniqueId(), ...initData }]);
 	};
 	const removeRow = (index: number) => {
