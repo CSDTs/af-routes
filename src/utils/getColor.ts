@@ -1,6 +1,6 @@
 const getColor = (id: number) => {
 	const colors = ["border-red-700", "border-blue-700", "border-green-700", "border-purple-700", "border-teal-400"];
-	const hexColors = ["#b91c1c", "#1d4ed8", "#15803d", "#7e22ce", "#334155"];
+	const hexColors = ["#b91c1c", "#1d4ed8", "#15803d", "#7e22ce", "#2dd4bf"];
 	const shadowColors = [
 		"shadow-red-700",
 		"shadow-blue-700",
