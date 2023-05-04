@@ -9,6 +9,8 @@ import { useRouteStore } from "../../../store";
 
 import { CloseBtn, Modal, PrimaryBtn, SecondaryBtn } from "../../atoms/";
 import LoadingIndicator from "../../atoms/indicators/LoadingIndicator";
+
+import * as Papa from "papaparse";
 interface TableProps {
 	dataKey: string;
 }
@@ -22,7 +24,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 		address: "",
 		drop_off_duration: 0,
 		time_windows: [["00:00", "00:00"]],
-		priority: "",
+		priority: 1,
 		coordinates: {},
 		timeWindowStart: "",
 		timeWindowEnd: "",
@@ -47,11 +49,41 @@ const LocationTable = ({ dataKey }: TableProps) => {
 		setData(dataKey, temp);
 	};
 
+	const handleCSVUpload = (event: any) => {
+		const file = event.target.files[0];
+		Papa.parse(file, {
+			header: true,
+			dynamicTyping: true,
+			skipEmptyLines: true,
+			complete: (results) => {
+				// Transform the data into the expected format
+				const parsedData = results.data.map((row: any, index) => ({
+					id: parseInt(uniqueId()),
+					address: row.address.replaceAll("&comma;", ", "),
+					drop_off_duration: row.drop_off_duration,
+					time_windows: [[row.time_window_start, row.time_window_end]],
+					priority: row.priority,
+					coordinates: { latitude: row.latitude, longitude: row.longitude },
+				}));
+
+				// Update the table and store with the parsed data
+				tableHook.setData(parsedData);
+				setData(dataKey, parsedData);
+			},
+		});
+	};
+
 	return (
 		<>
-			<div className="flex items-center justify-center gap-3 mx-auto">
+			<div className="flex items-center justify-center gap-4 mx-auto">
 				<PrimaryBtn clickHandler={() => setModalState(true)}>Update Table</PrimaryBtn>
-				<SecondaryBtn clickHandler={populateFromDatabase}>Autofill</SecondaryBtn>
+				<SecondaryBtn clickHandler={populateFromDatabase}>Autofill</SecondaryBtn>{" "}
+				<label className="cursor-pointer flex w-full text-center">
+					<span className="rounded-md bg-slate-500 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 w-full cursor-pointer">
+						Upload CSV
+					</span>
+					<input type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
+				</label>
 			</div>
 
 			<Modal title="Job Locations" isActive={modalOpen} handleClose={closeModal}>
@@ -81,8 +113,9 @@ const LocationTable = ({ dataKey }: TableProps) => {
 															<span className="sr-only">Starting Address</span>
 															<input
 																type="text"
+																placeholder="e.g. 23600 Heidelberg St, Detroit, MI 48207, United States"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
-																value={row.address}
+																value={row?.address}
 																onChange={(event) => tableHook.handleChange(event, index, "address")}
 																onFocus={() => setCurrent(index)}
 															/>
@@ -113,8 +146,8 @@ const LocationTable = ({ dataKey }: TableProps) => {
 													<span className="sr-only">Drop Off Duration</span>
 													<input
 														type="number"
-														value={row.drop_off_duration}
-														onChange={(event) => tableHook.handleChange(event, index, "duration")}
+														value={row?.drop_off_duration}
+														onChange={(event) => tableHook.handleChange(event, index, "drop_off_duration")}
 														onFocus={() => setCurrent(index)}
 														className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 													/>
@@ -127,7 +160,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 														<input
 															type="time"
 															onFocus={() => setCurrent(index)}
-															value={row.time_windows[0][0]}
+															value={row?.time_windows[0][0]}
 															onChange={(event) => tableHook.handleChange(event, index, "timeWindowStart")}
 															className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 														/>
@@ -137,7 +170,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 														<input
 															type="time"
 															onFocus={() => setCurrent(index)}
-															value={row.time_windows[0][1]}
+															value={row?.time_windows[0][1]}
 															onChange={(event) => tableHook.handleChange(event, index, "timeWindowEnd")}
 															className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 														/>
@@ -149,7 +182,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 													<span className="sr-only">Priority</span>
 													<input
 														type="number"
-														value={row.priority}
+														value={row?.priority}
 														onChange={(event) => tableHook.handleChange(event, index, "priority")}
 														onFocus={() => setCurrent(index)}
 														className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "

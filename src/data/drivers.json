@@ -1,6 +1,6 @@
 [
 	{
-		"name": "Hugh West",
+		"name": "David Martinez",
 		"address": "2555 Oak Valley Dr, Ann Arbor, MI 48103",
 		"coordinates": { "latitude": 42.24977, "longitude": -83.77077 },
 		"time_window": ["08:00", "18:00"],
@@ -14,7 +14,7 @@
 		]
 	},
 	{
-		"name": "Joyner Lucas",
+		"name": "Dorio Lucas",
 		"address": "3300 Ann Arbor Saline Rd, Ann Arbor, MI 48103",
 		"coordinates": { "latitude": 42.23938, "longitude": -83.77182 },
 		"time_window": ["08:00", "18:00"],
@@ -28,7 +28,7 @@
 		]
 	},
 	{
-		"name": "Jane Doe",
+		"name": "Lucy Smith",
 		"address": "3400 Nixon Rd, Ann Arbor, MI 48105",
 		"coordinates": { "latitude": 42.323231, "longitude": -83.707939 },
 		"time_window": ["08:00", "18:00"],

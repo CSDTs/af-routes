@@ -12,6 +12,7 @@ interface Address {
 interface TableRow {
 	address: string;
 	duration: number;
+	drop_off_duration?: number;
 	time_windows: any[];
 	priority: number;
 	coordinates: Object;
@@ -47,7 +48,7 @@ const useTable = (mainData: any, initData: any) => {
 
 	const timeoutRef = useRef<any>(null);
 	const addRow = (initData: any) => {
-		setData([...data, , { id: uniqueId(), ...initData }]);
+		setData([...data, { id: uniqueId(), ...initData }]);
 	};
 	const removeRow = (index: number) => {
 		const newRows = [...data];

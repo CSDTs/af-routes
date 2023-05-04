@@ -6,11 +6,13 @@ import useTable from "../../../hooks/useTable";
 import { useRouteStore } from "../../../store";
 
 import { uniqueId } from "lodash";
+import * as Papa from "papaparse";
 import { CloseBtn, LoadingIndicator, Modal, PrimaryBtn, SecondaryBtn } from "../../atoms/";
 
 interface TableProps {
 	dataKey: string;
 }
+
 const DriverTable = ({ dataKey }: TableProps) => {
 	const { modalOpen, setModalState } = useModalWithData();
 	const currentDrivers = useRouteStore((state) => state[dataKey]);
@@ -19,7 +21,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 	const initData = {
 		address: "",
 		name: "",
-		duration: 0,
+		max_travel_time: 0,
 		time_window: ["00:00", "00:00"],
 		max_stops: 0,
 		break_slots: [
@@ -49,11 +51,48 @@ const DriverTable = ({ dataKey }: TableProps) => {
 		tableHook.setData(temp);
 		setData(dataKey, temp);
 	};
+	const handleCSVUpload = (event: any) => {
+		const file = event.target.files[0];
+		Papa.parse(file, {
+			header: true,
+			dynamicTyping: true,
+			skipEmptyLines: true,
+			complete: (results) => {
+				// Transform the data into the expected format
+				const parsedData = results.data.map((row: any, index) => ({
+					id: parseInt(uniqueId()),
+					address: row.address.replaceAll("&comma;", ", "),
+					name: row.name,
+					max_travel_time: row.max_travel_time,
+					time_window: [row.time_window_start, row.time_window_end],
+					max_stops: row.max_stops,
+					break_slots: [
+						{
+							time_windows: [[row.break_slot_start, row.break_slot_end]],
+							service: row.service,
+						},
+					],
+					coordinates: { latitude: row.latitude, longitude: row.longitude },
+				}));
+
+				// Update the table and store with the parsed data
+				tableHook.setData(parsedData);
+				setData(dataKey, parsedData);
+			},
+		});
+	};
+
 	return (
 		<>
-			<div className="flex items-center justify-center gap-3 mx-auto">
+			<div className="flex items-center justify-center gap-4 mx-auto">
 				<PrimaryBtn clickHandler={() => setModalState(true)}>Update Table</PrimaryBtn>
 				<SecondaryBtn clickHandler={populateFromDatabase}>Autofill</SecondaryBtn>
+				<label className="cursor-pointer flex w-full text-center">
+					<span className="rounded-md bg-slate-500 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 w-full cursor-pointer">
+						Upload CSV
+					</span>
+					<input type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
+				</label>
 			</div>
 
 			<Modal title="Drivers" isActive={modalOpen} handleClose={closeModal}>
@@ -77,7 +116,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 								</thead>
 								<tbody>
 									{tableHook.data.map((row, index) => (
-										<tr key={index}>
+										<tr key={index} className="odd:bg-slate-50 even:bg-slate-200">
 											<td className="px-4 py-2 border">
 												<div className="relative">
 													<div className="flex flex-col gap-2">
@@ -85,6 +124,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 															<span className="sr-only">Starting Address</span>
 															<input
 																type="text"
+																placeholder="e.g. 23600 Heidelberg St, Detroit, MI 48207, United States"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 																value={row.address}
 																onChange={(event) => tableHook.handleChange(event, index, "address")}
@@ -117,6 +157,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 													<span className="sr-only">Driver Name</span>
 													<input
 														type="text"
+														placeholder="e.g. Taylor Jones"
 														className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 														value={row.name}
 														onChange={(event) => tableHook.handleChange(event, index, "name")}
@@ -162,7 +203,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 												<label className="block">
 													<span className="sr-only">Max Stops</span>
 													<input
-														type="text"
+														type="number"
 														className="items-center  w-full h-12 px-4 space-x-3 text-left bg-white rounded-lg shadow-sm sm:flex ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
 														value={row.max_stops}
 														onChange={(event) => tableHook.handleChange(event, index, "max_stops")}
