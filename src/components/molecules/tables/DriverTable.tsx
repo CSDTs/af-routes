@@ -61,7 +61,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 				// Transform the data into the expected format
 				const parsedData = results.data.map((row: any, index) => ({
 					id: parseInt(uniqueId()),
-					address: row.address.replaceAll("&comma;", ", "),
+					address: row.address.replace(/\\,/g, ","),
 					name: row.name,
 					max_travel_time: row.max_travel_time,
 					time_window: [row.time_window_start, row.time_window_end],

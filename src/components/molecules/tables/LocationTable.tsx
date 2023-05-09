@@ -59,7 +59,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 				// Transform the data into the expected format
 				const parsedData = results.data.map((row: any, index) => ({
 					id: parseInt(uniqueId()),
-					address: row.address.replaceAll("&comma;", ", "),
+					address: row.address.replace(/\\,/g, ","),
 					drop_off_duration: row.drop_off_duration,
 					time_windows: [[row.time_window_start, row.time_window_end]],
 					priority: row.priority,
