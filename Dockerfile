@@ -1,6 +1,8 @@
 # Use a lightweight base image
 FROM node:alpine as build
 
+ARG ROOT_PATH=/
+
 # Set the working directory
 WORKDIR /app
 
@@ -17,7 +19,7 @@ RUN npm install -g vite
 COPY . .
 
 # Build the Vite React project
-RUN npm run build
+RUN npm run build -- --base=${ROOT_PATH}
 
 # Use a lightweight base image for serving the build artifacts
 FROM node:alpine
