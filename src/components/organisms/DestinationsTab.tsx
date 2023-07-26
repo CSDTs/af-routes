@@ -10,18 +10,18 @@ const DestinationsTab = () => {
 
 	return (
 		<>
-			<Header>Destinations</Header>
-			<Subheader>Fill in the table below to start adding destinations.</Subheader>
+			{/* <Header>Destinations</Header> */}
+			{/* <Subheader>Fill in the table below to start adding destinations.</Subheader> */}
 
 			<LocationTable dataKey={"locations"} />
 			{locations.length == 0 && (
-				<div className="flex items-center mt-5 text-center border aspect-square bg-slate-100 border-slate-300">
-					<p className="mx-auto my-auto">You don't have any destinations selected.</p>
-				</div>
+				// <div className=" items-stretch py-5 text-center border flex flex-col bg-slate-100 border-slate-300 h-5/6 mt-auto">
+				<p className="mx-auto my-auto p-3 ">You don't have any destinations selected.</p>
+				// </div>
 			)}
 
 			{locations.length !== 0 && (
-				<div className="flex my-6 overflow-y-auto text-center aspect-square ">
+				<div className="flex overflow-y-auto text-center h-full my-5">
 					<ul className="w-full ">
 						{locations.length > 0 &&
 							locations[0]?.address != "" &&
