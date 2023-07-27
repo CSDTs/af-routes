@@ -77,7 +77,7 @@ const RoutingMap = () => {
 	}, [optimization]);
 
 	return (
-		<MapContainer ref={mapRef} center={[42.279594, -83.732124]} zoom={15}>
+		<MapContainer ref={mapRef} center={[42.279594, -83.732124]} zoom={15} style={{ zIndex: -1 }}>
 			<TileLayer
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'

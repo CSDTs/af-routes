@@ -14,11 +14,12 @@ function App() {
 		<main className="flex flex-col h-full lg:h-screen ">
 			<Navigation />
 			<Routes>
-				<Route path="/" element={<DashboardPage />} />
-				<Route path="/routing" element={<RoutingPage />} />
-				<Route path="/orders" element={<OrdersPage />} />
+				{/* <Route path="/" element={<DashboardPage />} /> */}
+				{/* <Route path="/routing" element={<RoutingPage />} /> */}
+				<Route path="/" element={<RoutingPage />} />
+				{/* <Route path="/orders" element={<OrdersPage />} />
 				<Route path="/tracking" element={<TrackingPage />} />
-				<Route path="/messaging" element={<MessagingPage />} />
+				<Route path="/messaging" element={<MessagingPage />} /> */}
 			</Routes>
 		</main>
 	);

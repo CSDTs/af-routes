@@ -38,6 +38,8 @@ const DriversTab = () => {
 										<li>{driver.max_travel_time} minutes</li>
 										<li>&middot;</li>
 										<li>{driver.max_stops} stops</li>
+										<li>&middot;</li>
+										<>Shift from 09:00 to 17:00</>
 									</ListingUnorderedList>
 								</li>
 							))}

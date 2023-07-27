@@ -1,3 +1,4 @@
+import { ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/24/outline";
 import { useRouteStore } from "../../store";
 import { Header, Subheader } from "../atoms";
 import ListingHeader from "../atoms/listings/ListingHeader";
@@ -22,24 +23,30 @@ const DestinationsTab = () => {
 
 			{locations.length !== 0 && (
 				<div className="flex overflow-y-auto text-center h-full my-5">
-					<ul className="w-full ">
+					<section className="w-full ">
 						{locations.length > 0 &&
 							locations[0]?.address != "" &&
 							locations.map((listing, idx) => (
-								<li key={idx} className="p-3 m-1 font-medium text-left odd:bg-slate-300 even:bg-slate-100">
-									<ListingHeader>{listing.address}</ListingHeader>
-									<ListingUnorderedList>
-										<li>
-											{listing.coordinates?.latitude || ""}, {listing.coordinates?.longitude || ""}
-										</li>
-										<li>&middot;</li>
-										<li>{listing.drop_off_duration} minutes</li>
-										<li>&middot;</li>
-										<li>{listing.priority ? "High" : "Normal"} priority</li>
-									</ListingUnorderedList>
-								</li>
+								<div
+									key={idx}
+									className="p-3 m-1 font-medium text-left odd:bg-slate-300 even:bg-slate-100 flex justify-between items-center ">
+									<span>
+										<ListingHeader>{listing.address}</ListingHeader>
+										<ListingUnorderedList>
+											<>
+												{listing.coordinates?.latitude || ""}, {listing.coordinates?.longitude || ""}
+											</>
+											<>&middot;</>
+											<>{listing.drop_off_duration} minutes</>
+											<>&middot;</>
+											<>{listing.priority ? "High" : "Normal"} priority</>
+										</ListingUnorderedList>
+									</span>
+
+									<ChatBubbleOvalLeftEllipsisIcon className="h-6 w-6" />
+								</div>
 							))}{" "}
-					</ul>
+					</section>
 				</div>
 			)}
 		</>
