@@ -8,14 +8,12 @@ import { GeoSearchControl, GoogleProvider, OpenStreetMapProvider } from "leaflet
 import "leaflet-geosearch/dist/geosearch.css";
 import { useEffect, useRef, useState } from "react";
 import { GeoJSON, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
-// const provider = new OpenStreetMapProvider();
-// const provider = new GoogleProvider({ apiKey: import.meta.env.VITE_GOOGLE_MAP_API_KEY });
+
 const LocationPin = () => {
 	const [position, setPosition] = useState<any>(null);
 
-	const map = useMapEvents({
+	useMapEvents({
 		click(e) {
-			console.log(e);
 			setPosition(e.latlng);
 		},
 	});
@@ -29,17 +27,19 @@ const LocationPin = () => {
 
 // make new leaflet element
 
-const Search = (props) => {
+const Search = (props: any) => {
 	const map = useMap();
 
 	useEffect(() => {
-		const searchControl = new GeoSearchControl({
+		const searchControl = new (GeoSearchControl as any)({
 			provider: props.provider,
 			...props,
 		});
 
 		map.addControl(searchControl);
-		return () => map.removeControl(searchControl);
+		return () => {
+			map.removeControl(searchControl);
+		};
 	}, [props]);
 
 	return null;
