@@ -2,7 +2,9 @@ export interface Coordinates {
 	latitude: number | string;
 	longitude: number | string;
 }
-type TimeWindow = [string, string];
+
+export type TimeWindow = { startTime: string; endTime: string };
+
 type Break = {
 	id: number;
 	time_windows: TimeWindow[];
@@ -26,6 +28,7 @@ export interface Driver {
 export interface Location {
 	id: number;
 	address: string;
+	customer_name?: string;
 	coordinates?: Coordinates | null;
 	drop_off_duration: number;
 	priority: number;

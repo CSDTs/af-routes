@@ -11,6 +11,7 @@ import { CloseBtn, Modal, PrimaryBtn, SecondaryBtn } from "../../atoms/";
 import LoadingIndicator from "../../atoms/indicators/LoadingIndicator";
 
 import * as Papa from "papaparse";
+import AddRoute from "../AddRoute";
 import SlideOver from "../SlideOver";
 interface TableProps {
 	dataKey: string;
@@ -19,7 +20,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 	const { modalOpen, setModalState } = useModalWithData();
 
 	const [createStop, setCreateStop] = useState(false);
-
+	const [createNewStop, setCreateNewStop] = useState(false);
 	const currentLocations = useRouteStore((state) => state[dataKey]);
 	const setData = useRouteStore((state) => state.setData);
 
@@ -79,10 +80,9 @@ const LocationTable = ({ dataKey }: TableProps) => {
 
 	return (
 		<>
-			<SlideOver open={createStop} setOpen={setCreateStop} />
 			<div className="flex items-center justify-center gap-4 mx-auto bg-white w-full p-3 shadow my-2">
-				{/* <PrimaryBtn clickHandler={() => setCreateStop(true)}>Add Stop</PrimaryBtn> */}
-				<PrimaryBtn clickHandler={() => setModalState(true)}>Update</PrimaryBtn>
+				<PrimaryBtn clickHandler={() => setCreateNewStop(true)}>Add Stop</PrimaryBtn>
+				{/* <PrimaryBtn clickHandler={() => setModalState(true)}>Update</PrimaryBtn> */}
 				<SecondaryBtn clickHandler={populateFromDatabase}>Autofill</SecondaryBtn>{" "}
 				<label className="cursor-pointer flex w-full text-center">
 					<span className="rounded-md bg-slate-500 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 w-full cursor-pointer">
@@ -91,8 +91,8 @@ const LocationTable = ({ dataKey }: TableProps) => {
 					<input type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
 				</label>
 			</div>
-
-			<Modal title="Add a Stop" isActive={modalOpen} handleClose={closeModal}>
+			<AddRoute open={createNewStop} setOpen={setCreateNewStop} />
+			<SlideOver open={createStop} setOpen={setCreateStop}>
 				<div className="mt-2">
 					<p className="text-sm text-gray-500">Fill out the table below to start adding destinations to the map.</p>
 				</div>
@@ -218,7 +218,7 @@ const LocationTable = ({ dataKey }: TableProps) => {
 				<div className="mt-4">
 					<CloseBtn clickHandler={closeModal}>Accept and Close</CloseBtn>
 				</div>
-			</Modal>
+			</SlideOver>
 		</>
 	);
 };

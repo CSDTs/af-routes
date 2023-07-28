@@ -71,6 +71,8 @@ interface RouteState {
 	setPinType: (pinType: string) => void;
 
 	setLocations: (locations: Location[]) => void;
+	updateLocation: (id: number, data: Partial<Location>) => void;
+
 	removeLocation: (id: number) => void;
 	removeDriver: (id: number) => void;
 	setDrivers: (drivers: Driver[]) => void;
@@ -102,6 +104,11 @@ export const useRouteStore = create<RouteState>()((set) => ({
 	pinType: "location",
 	setPinType: (type) => set({ pinType: type }),
 	setLocations: (locations) => set({ locations }),
+
+	updateLocation: (id, data) =>
+		set((state) => ({
+			locations: state.locations.map((location) => (location.id === id ? { ...location, ...data } : location)),
+		})),
 	removeLocation: (id) => set((state) => ({ locations: state.locations.filter((location) => location.id !== id) })),
 	setDrivers: (drivers) => set({ drivers }),
 	appendLocation: (location) => set((state) => ({ locations: [...state.locations, location] })),
