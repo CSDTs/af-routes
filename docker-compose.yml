@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  site:
+    build:
+      context: .
+      args:
+        - ROOT_PATH=${ROOT_PATH}
+    container_name: site-demo
+    ports:
+      - 6900:6900

@@ -10,19 +10,19 @@ const DriversTab = () => {
 
 	return (
 		<>
-			<Header>Drivers</Header>
-			<Subheader>Fill in the table below to start adding drivers to map.</Subheader>
+			{/* <Header>Drivers</Header>
+			<Subheader>Fill in the table below to start adding drivers to map.</Subheader> */}
 
 			<DriverTable dataKey={"drivers"} />
 
 			{drivers.length == 0 && (
-				<div className="flex items-center mt-5 text-center border h-96 bg-slate-100 border-slate-300">
-					<p className="mx-auto my-auto">You don't have any drivers added.</p>
-				</div>
+				// <div className="flex items-center mt-5 text-center border h-96 bg-slate-100 border-slate-300">
+				<p className="mx-auto my-auto p-3">You don't have any drivers added.</p>
+				// </div>
 			)}
 
 			{drivers.length !== 0 && (
-				<div className="flex my-6 overflow-y-auto text-center aspect-square ">
+				<div className="flex overflow-y-auto text-center h-full my-5">
 					<ul className="w-full ">
 						{drivers.length > 0 &&
 							drivers[0]?.address != "" &&
@@ -38,6 +38,8 @@ const DriversTab = () => {
 										<li>{driver.max_travel_time} minutes</li>
 										<li>&middot;</li>
 										<li>{driver.max_stops} stops</li>
+										<li>&middot;</li>
+										<>Shift from 09:00 to 17:00</>
 									</ListingUnorderedList>
 								</li>
 							))}

@@ -84,12 +84,12 @@ const DriverTable = ({ dataKey }: TableProps) => {
 
 	return (
 		<>
-			<div className="flex items-center justify-center gap-4 mx-auto">
-				<PrimaryBtn clickHandler={() => setModalState(true)}>Update Table</PrimaryBtn>
+			<div className="flex items-center justify-center gap-4 mx-auto bg-white w-full p-3 shadow my-2">
+				<PrimaryBtn clickHandler={() => setModalState(true)}>Update </PrimaryBtn>
 				<SecondaryBtn clickHandler={populateFromDatabase}>Autofill</SecondaryBtn>
 				<label className="cursor-pointer flex w-full text-center">
 					<span className="rounded-md bg-slate-500 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 w-full cursor-pointer">
-						Upload CSV
+						Upload...
 					</span>
 					<input type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
 				</label>

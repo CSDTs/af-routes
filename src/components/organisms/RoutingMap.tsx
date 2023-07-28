@@ -1,12 +1,49 @@
-import { useRequestStore, useRouteStore } from "@/store";
-import L, { LatLngExpression } from "leaflet";
-import { useEffect, useRef, useState } from "react";
-import { GeoJSON, MapContainer, TileLayer } from "react-leaflet";
-
 import CarMarker from "@/components/atoms/map/CarMarker";
 import CustomMarker from "@/components/atoms/map/CustomMarker";
+import { useRequestStore, useRouteStore } from "@/store";
 import { getStyle } from "@/utils/getColor";
 import getUniqueKey from "@/utils/getUniqueKey";
+import L, { LatLngExpression } from "leaflet";
+import { GeoSearchControl, GoogleProvider, OpenStreetMapProvider } from "leaflet-geosearch";
+import "leaflet-geosearch/dist/geosearch.css";
+import { useEffect, useRef, useState } from "react";
+import { GeoJSON, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+
+const LocationPin = () => {
+	const [position, setPosition] = useState<any>(null);
+
+	useMapEvents({
+		click(e) {
+			setPosition(e.latlng);
+		},
+	});
+
+	return position === null ? null : (
+		<Marker position={position}>
+			<Popup>You are here</Popup>
+		</Marker>
+	);
+};
+
+// make new leaflet element
+
+const Search = (props: any) => {
+	const map = useMap();
+
+	useEffect(() => {
+		const searchControl = new (GeoSearchControl as any)({
+			provider: props.provider,
+			...props,
+		});
+
+		map.addControl(searchControl);
+		return () => {
+			map.removeControl(searchControl);
+		};
+	}, [props]);
+
+	return null;
+};
 
 const RoutingMap = () => {
 	const drivers = useRouteStore((state) => state.drivers);
@@ -40,12 +77,11 @@ const RoutingMap = () => {
 	}, [optimization]);
 
 	return (
-		<MapContainer ref={mapRef} center={[42.279594, -83.732124]} zoom={15}>
+		<MapContainer ref={mapRef} center={[42.279594, -83.732124]} zoom={15} style={{ zIndex: -1 }}>
 			<TileLayer
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
 			/>
-
 			{locations &&
 				locations.length > 0 &&
 				locations.map((location) => (
@@ -55,7 +91,6 @@ const RoutingMap = () => {
 						key={location?.address}
 					/>
 				))}
-
 			{drivers &&
 				drivers.length > 0 &&
 				drivers.map((vehicle) => (
@@ -66,6 +101,7 @@ const RoutingMap = () => {
 						key={vehicle.address}
 					/>
 				))}
+			<LocationPin /> <Search provider={new GoogleProvider({ apiKey: import.meta.env.VITE_GOOGLE_MAP_API_KEY })} />
 			{geojsonData && <GeoJSON data={geojsonData} style={getStyle} />}
 		</MapContainer>
 	);

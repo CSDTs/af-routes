@@ -115,7 +115,8 @@ const useOpenRoute = () => {
 		return response.data;
 	};
 	const getOptimization = async () => {
-		const address = `${ROOT_URL}/optimization`;
+		// const address = `${ROOT_URL}/optimization`;
+		const address = "https://data.artisanalfutures.org/api/v1/optimization";
 
 		const jobs = locations.map((loc) => {
 			return {
@@ -134,7 +135,7 @@ const useOpenRoute = () => {
 		const vehicles = drivers.map((loc) => {
 			return {
 				id: loc.id,
-				profile: "driving-car",
+				profile: "car",
 				description: loc.name,
 				start: [loc.coordinates?.longitude, loc.coordinates?.latitude],
 				end: [loc.coordinates?.longitude, loc.coordinates?.latitude],

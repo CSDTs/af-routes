@@ -67,7 +67,12 @@ interface Result {
 interface RouteState {
 	locations: Location[];
 	drivers: Driver[];
+	pinType: string;
+	setPinType: (pinType: string) => void;
+
 	setLocations: (locations: Location[]) => void;
+	removeLocation: (id: number) => void;
+	removeDriver: (id: number) => void;
 	setDrivers: (drivers: Driver[]) => void;
 	appendLocation: (location: Location) => void;
 	appendDriver: (driver: Driver) => void;
@@ -91,25 +96,20 @@ interface LocationTableState {
 	setRows: (rows: LocationTableRow[]) => void;
 }
 
-export const useRouteStore = create<RouteState>()(
-	// devtools(
-	// 	persist(
-	(set) => ({
-		locations: [],
-		drivers: [],
-		setLocations: (locations) => set({ locations }),
-		setDrivers: (drivers) => set({ drivers }),
-		appendLocation: (location) => set((state) => ({ locations: [...state.locations, location] })),
-		appendDriver: (driver) => set((state) => ({ drivers: [...state.drivers, driver] })),
-		setData: <T>(arrName: string, data: T) => set({ [arrName]: data }),
-		appendData: <T>(arrName: string, data: T) => set((state) => ({ [arrName]: [...state[arrName], data] })),
-	})
-	// 	{
-	// 		name: "route-storage",
-	// 	}
-	// )
-	// )
-);
+export const useRouteStore = create<RouteState>()((set) => ({
+	locations: [],
+	drivers: [],
+	pinType: "location",
+	setPinType: (type) => set({ pinType: type }),
+	setLocations: (locations) => set({ locations }),
+	removeLocation: (id) => set((state) => ({ locations: state.locations.filter((location) => location.id !== id) })),
+	setDrivers: (drivers) => set({ drivers }),
+	appendLocation: (location) => set((state) => ({ locations: [...state.locations, location] })),
+	appendDriver: (driver) => set((state) => ({ drivers: [...state.drivers, driver] })),
+	setData: <T>(arrName: string, data: T) => set({ [arrName]: data }),
+	appendData: <T>(arrName: string, data: T) => set((state) => ({ [arrName]: [...state[arrName], data] })),
+	removeDriver: (id) => set((state) => ({ drivers: state.drivers.filter((driver) => driver.id !== id) })),
+}));
 
 export const useRequestStore = create<RequestState>((set) => ({
 	cachedDirections: new Map<string, any>(),
