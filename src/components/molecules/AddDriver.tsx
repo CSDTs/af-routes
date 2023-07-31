@@ -14,7 +14,7 @@ interface TimeWindowData {
 	endTime: string;
 }
 
-import { Location } from "@/types";
+import { Driver, Location, TimeWindow } from "@/types";
 import { classNames } from "@/utils/styles";
 import { Listbox } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
@@ -183,23 +183,22 @@ interface IProps {
 	open: boolean;
 	setOpen: (open: boolean) => void;
 }
-const AddRoute: FC<IProps> = ({ open, setOpen }) => {
-	const dataKey = "locations";
-
+const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 	const [isAddressModalOpen, setAddressModalOpen] = useState(false);
 	const tableData = createRef<HTMLFormElement>();
-	const locations = useRouteStore((state) => state.locations);
-	const appendLocation = useRouteStore((state) => state.appendLocation);
+	const drivers = useRouteStore((state) => state.drivers);
+	const appendDriver = useRouteStore((state) => state.appendDriver);
 
 	const [addresses, setAddresses] = useState([]);
 
-	const [initData, setInitData] = useState<Location>({
+	const [initData, setInitData] = useState<Driver>({
 		id: parseInt(uniqueId()),
-		customer_name: "",
+		name: "",
 		address: "",
-		drop_off_duration: 0,
-		time_windows: [{ startTime: "00:00", endTime: "00:00" }],
-		priority: 1,
+		max_travel_time: 0,
+		time_window: { startTime: "00:00", endTime: "00:00" },
+		max_stops: 1,
+		break_slots: [{ id: parseInt(uniqueId()), time_windows: [{ startTime: "00:00", endTime: "00:00" }], service: 0 }],
 		coordinates: { latitude: 0, longitude: 0 },
 	});
 
@@ -221,14 +220,14 @@ const AddRoute: FC<IProps> = ({ open, setOpen }) => {
 			return;
 		}
 
-		const isAddressADuplicate = locations.some((location) => location.address === initData.address);
+		const isAddressADuplicate = drivers.some((driver) => driver.address === initData.address);
 
 		if (isAddressADuplicate) {
 			console.log("address is a duplicate");
 			return;
 		}
 
-		appendLocation(initData);
+		appendDriver(initData);
 		setOpen(false);
 	};
 
@@ -249,23 +248,35 @@ const AddRoute: FC<IProps> = ({ open, setOpen }) => {
 		e.preventDefault();
 		saveRoute();
 	};
+
+	const createBreak = (window: TimeWindow) => {
+		return {
+			id: parseInt(uniqueId()),
+			time_windows: [{ startTime: window.startTime, endTime: window.endTime }],
+			service: 0,
+		};
+	};
 	useEffect(() => {
 		if (open) {
 			setInitData({
 				id: parseInt(uniqueId()),
-				customer_name: "",
+				name: "",
 				address: "",
-				drop_off_duration: 0,
-				time_windows: [{ startTime: "00:00", endTime: "00:00" }],
-				priority: 1,
+				max_travel_time: 0,
+				time_window: { startTime: "", endTime: "" },
+				max_stops: 1,
+				break_slots: [
+					{ id: parseInt(uniqueId()), time_windows: [{ startTime: "00:00", endTime: "00:00" }], service: 0 },
+				],
 				coordinates: { latitude: 0, longitude: 0 },
 			});
 		}
 	}, [open]);
 
 	useEffect(() => {
+		const breaks = timeWindows.map((tw) => createBreak(tw));
 		if (timeWindows.length > 0) {
-			setInitData({ ...initData, time_windows: timeWindows });
+			setInitData({ ...initData, break_slots: breaks });
 		}
 	}, [timeWindows]);
 
@@ -319,13 +330,13 @@ const AddRoute: FC<IProps> = ({ open, setOpen }) => {
 									</Transition.Child>
 									<div className="flex h-full flex-col bg-white py-6 shadow-xl">
 										<div className="px-4 sm:px-6">
-											<Dialog.Title className="text-3xl font-semibold leading-6 text-gray-900">New Stop</Dialog.Title>
+											<Dialog.Title className="text-3xl font-semibold leading-6 text-gray-900">New Driver</Dialog.Title>
 										</div>
 										<div className="relative mt-6 flex-1 px-4 sm:px-6">
 											{" "}
 											<div className="mt-2">
 												<p className="text-sm text-gray-500">
-													Fill out the table below to start adding destinations to the map.
+													Fill out the table below to start adding and assigning drivers to the map.
 												</p>
 											</div>
 											<form
@@ -336,13 +347,13 @@ const AddRoute: FC<IProps> = ({ open, setOpen }) => {
 												<section>
 													<div className="flex flex-row  p-2 gap-4">
 														<label className="w-3/5">
-															<span>Customer Name</span>
+															<span>Driver's Name</span>
 															<input
 																type="text"
-																name="customer_name"
-																placeholder="e.g. Bob Smith"
+																name="name"
+																placeholder="e.g. Jen Smith"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex  ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
-																value={initData?.customer_name}
+																value={initData?.name}
 																onChange={updateData}
 															/>
 														</label>{" "}
@@ -353,46 +364,80 @@ const AddRoute: FC<IProps> = ({ open, setOpen }) => {
 													<div className="flex gap-4 p-2">
 														<label className=" ">
 															<span className="flex justify-between">
-																Drop Off Duration{" "}
+																Max Travel Time{" "}
 																<span className="group relative w-max">
 																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
 																	<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																		How long (roughly in minutes) should the drop off take? This is from when the driver
-																		arrives at the stop to when they leave.
+																		How long (roughly in minutes) should the driver take for any given stop?
 																	</span>
 																</span>
 															</span>
 															<input
-																name="drop_off_duration"
+																name="max_travel_time"
 																type="number"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
-																value={initData?.drop_off_duration}
+																value={initData?.max_travel_time}
 																onChange={updateData}
 															/>
 														</label>
 														<label className="">
 															<span className="flex justify-between">
-																Priority{" "}
+																Max Stops{" "}
 																<span className="group relative w-max">
 																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
 																	<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																		On a scale of 1 to 100, with 1 being the highest and 100 being the lowest, rate the
-																		priority of this stop.
+																		How many stops can the driver make?
 																	</span>
 																</span>
 															</span>
 															<input
-																name="priority"
+																name="max_stops"
 																type="number"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-400 "
-																value={initData?.priority}
+																value={initData?.max_stops}
 																onChange={updateData}
 															/>
 														</label>
 													</div>
 
+													<div className="flex p-2 flex-col">
+														<span>Time Window</span>
+
+														<div className="flex items-center gap-4">
+															<label>
+																<span className="sr-only">Start Time</span>
+																<input
+																	type="time"
+																	value={initData?.time_window.startTime}
+																	onChange={(e) =>
+																		setInitData({
+																			...initData,
+																			time_window: { ...initData.time_window, startTime: e.target.value },
+																		})
+																	}
+																	className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
+																/>
+															</label>
+
+															<span> to </span>
+															<label htmlFor="">
+																<span className="sr-only">End Time</span>
+																<input
+																	type="time"
+																	value={initData?.time_window.endTime}
+																	onChange={(e) =>
+																		setInitData({
+																			...initData,
+																			time_window: { ...initData.time_window, endTime: e.target.value },
+																		})
+																	}
+																	className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
+																/>
+															</label>
+														</div>
+													</div>
 													<div className="flex p-2 flex-col ">
-														<span>Time Windows</span>
+														<span>Break Slots</span>
 
 														<TimeWindowInput onAddTimeWindow={handleAddTimeWindow} />
 
@@ -402,13 +447,7 @@ const AddRoute: FC<IProps> = ({ open, setOpen }) => {
 																	<span>
 																		{tw.startTime} to {tw.endTime}
 																	</span>{" "}
-																	<TrashIcon
-																		className="h-4 w-4"
-																		onClick={() => {
-																			console.log(index);
-																			// setTimeWindows(timeWindows.splice(index, 1));
-																		}}
-																	/>
+																	<TrashIcon className="h-4 w-4" />
 																</div>
 															))}
 														</div>
@@ -459,4 +498,4 @@ const AddRoute: FC<IProps> = ({ open, setOpen }) => {
 		</Transition.Root>
 	);
 };
-export default AddRoute;
+export default AddDriver;

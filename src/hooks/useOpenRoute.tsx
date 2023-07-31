@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import { shallow } from "zustand/shallow";
 import { useRequestStore, useRouteStore } from "../store";
-import { Coordinates, Location } from "../types";
+import { Break, Coordinates, Location, TimeWindow } from "../types";
 
 const ROOT_URL = "https://api.openrouteservice.org";
 const PROFILE = "driving-car";
@@ -36,8 +36,8 @@ function convertHMS(timeString: string) {
 	const seconds: number = parseInt(arr[0]) * 3600 + parseInt(arr[1]) * 60;
 	return seconds;
 }
-const handleTimeWindow = (window: [string, string]) => {
-	return [convertHMS(window[0]), convertHMS(window[1])];
+const handleTimeWindow = (window: TimeWindow) => {
+	return [convertHMS(window.startTime), convertHMS(window.endTime)];
 };
 const useOpenRoute = () => {
 	const locations = useRouteStore((state) => state.locations);
@@ -114,6 +114,23 @@ const useOpenRoute = () => {
 
 		return response.data;
 	};
+
+	const formatBreak = (breakSlot: Break) => {
+		console.log(breakSlot);
+		const timeSlots = breakSlot.time_windows.map((slot) => {
+			return handleTimeWindow(slot);
+		});
+		console.log(timeSlots);
+		console.log({
+			...breakSlot,
+			time_windows: timeSlots,
+		});
+		return {
+			...breakSlot,
+			time_windows: timeSlots,
+		};
+	};
+
 	const getOptimization = async () => {
 		// const address = `${ROOT_URL}/optimization`;
 		const address = "https://data.artisanalfutures.org/api/v1/optimization";
@@ -122,7 +139,7 @@ const useOpenRoute = () => {
 			return {
 				id: loc.id,
 				description: loc.address,
-				service: loc.drop_off_duration,
+				service: loc.drop_off_duration * 60,
 				amount: [1],
 				location: [loc.coordinates?.longitude, loc.coordinates?.latitude],
 				skills: [1],
@@ -132,6 +149,7 @@ const useOpenRoute = () => {
 				}),
 			};
 		});
+
 		const vehicles = drivers.map((loc) => {
 			return {
 				id: loc.id,
@@ -139,13 +157,11 @@ const useOpenRoute = () => {
 				description: loc.name,
 				start: [loc.coordinates?.longitude, loc.coordinates?.latitude],
 				end: [loc.coordinates?.longitude, loc.coordinates?.latitude],
-				// max_travel_time: loc.max_travel_time,
-				// max_tasks: loc.max_stops,
+				max_travel_time: loc.max_travel_time * 60,
+				max_tasks: loc.max_stops,
 				capacity: [4],
 				skills: [1],
-				// breaks: loc.break_slots.map((slot) => {
-				// 	return { ...slot, id: parseInt(uniqueId()) };
-				// }),
+				breaks: loc.break_slots.map((tw) => formatBreak(tw)),
 				time_window: handleTimeWindow(loc.time_window),
 			};
 		});

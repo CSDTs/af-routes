@@ -8,31 +8,30 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { ChangeEvent, FC, FormEvent, Fragment, createRef, useEffect, useState } from "react";
 
 import TimeWindowInput from "./TimeWindowInput";
-interface TimeWindowData {
-	startTime: string;
-	endTime: string;
-}
 
-import { Location } from "@/types";
+import { Driver, Location, TimeWindow } from "@/types";
 
+import { uniqueId } from "lodash";
 import AutocompleteAddressInput from "../AutoComplete";
 
 interface IProps {
 	open: boolean;
-	stop: Location;
+	stop: Driver;
 	setOpen: (open: boolean) => void;
 }
-const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
+const EditDriver: FC<IProps> = ({ open, setOpen, stop }) => {
 	const tableData = createRef<HTMLFormElement>();
 	const locations = useRouteStore((state) => state.locations);
 	const updateLocation = useRouteStore((state) => state.updateLocation);
 
 	const [addresses, setAddresses] = useState([]);
 
-	const [initData, setInitData] = useState<Location>(stop);
+	const [initData, setInitData] = useState<Driver>(stop);
 
 	const saveRoute = async () => {
 		const formData = getFormValues(tableData);
+
+		console.log(initData);
 
 		if (formData.address == "") return;
 
@@ -59,9 +58,9 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 		setOpen(false);
 	};
 
-	const [timeWindows, setTimeWindows] = useState<TimeWindowData[]>([]);
+	const [timeWindows, setTimeWindows] = useState<TimeWindow[]>([]);
 
-	const handleAddTimeWindow = (timeWindow: TimeWindowData) => {
+	const handleAddTimeWindow = (timeWindow: TimeWindow) => {
 		setTimeWindows([...timeWindows, timeWindow]);
 	};
 
@@ -78,16 +77,27 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 		e.preventDefault();
 		saveRoute();
 	};
-
+	const createBreak = (window: TimeWindow) => {
+		return {
+			id: parseInt(uniqueId()),
+			time_windows: [{ startTime: window.startTime, endTime: window.endTime }],
+			service: 0,
+		};
+	};
 	useEffect(() => {
+		const breaks = timeWindows.map((tw) => createBreak(tw));
 		if (timeWindows.length > 0) {
-			setInitData({ ...initData, time_windows: timeWindows });
+			setInitData({ ...initData, break_slots: breaks });
 		}
 	}, [timeWindows]);
 
 	useEffect(() => {
-		if (stop.time_windows) {
-			setTimeWindows(stop.time_windows);
+		console.log(stop);
+		if (stop.break_slots) {
+			const slots = stop.break_slots.map((slot) => {
+				return { startTime: slot.time_windows[0].startTime, endTime: slot.time_windows[0].endTime };
+			});
+			setTimeWindows(slots);
 		}
 	}, [stop]);
 	const setAddress = (data: Partial<Location>) => {
@@ -141,7 +151,9 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 									</Transition.Child>
 									<div className="flex h-full flex-col bg-white py-6 shadow-xl">
 										<div className="px-4 sm:px-6">
-											<Dialog.Title className="text-3xl font-semibold leading-6 text-gray-900">Edit Stop</Dialog.Title>
+											<Dialog.Title className="text-3xl font-semibold leading-6 text-gray-900">
+												Edit Driver
+											</Dialog.Title>
 										</div>
 										<div className="relative mt-6 flex-1 px-4 sm:px-6">
 											{" "}
@@ -154,13 +166,13 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 												<section>
 													<div className="flex flex-row  p-2 gap-4">
 														<label className="w-3/5">
-															<span>Customer Name</span>
+															<span>Driver's Name</span>
 															<input
 																type="text"
-																name="customer_name"
-																placeholder="e.g. Bob Smith"
+																name="name"
+																placeholder="e.g. Jen Smith"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex  ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
-																value={initData?.customer_name}
+																value={initData?.name}
 																onChange={updateData}
 															/>
 														</label>{" "}
@@ -181,46 +193,80 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 													<div className="flex gap-4 p-2">
 														<label className=" ">
 															<span className="flex justify-between">
-																Drop Off Duration{" "}
+																Max Travel Time{" "}
 																<span className="group relative w-max">
 																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
 																	<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																		How long (roughly in minutes) should the drop off take? This is from when the driver
-																		arrives at the stop to when they leave.
+																		How long (roughly in minutes) should the driver take for any given stop?
 																	</span>
 																</span>
 															</span>
 															<input
-																name="drop_off_duration"
+																name="max_travel_time"
 																type="number"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
-																value={initData?.drop_off_duration}
+																value={initData?.max_travel_time}
 																onChange={updateData}
 															/>
 														</label>
 														<label className="">
 															<span className="flex justify-between">
-																Priority{" "}
+																Max Stops{" "}
 																<span className="group relative w-max">
 																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
 																	<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																		On a scale of 1 to 100, with 1 being the highest and 100 being the lowest, rate the
-																		priority of this stop.
+																		How many stops can the driver make?
 																	</span>
 																</span>
 															</span>
 															<input
-																name="priority"
+																name="max_stops"
 																type="number"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
-																value={initData?.priority}
+																value={initData?.max_stops}
 																onChange={updateData}
 															/>
 														</label>
 													</div>
 
+													<div className="flex p-2 flex-col">
+														<span>Time Window</span>
+
+														<div className="flex items-center gap-4">
+															<label>
+																<span className="sr-only">Start Time</span>
+																<input
+																	type="time"
+																	value={initData?.time_window.startTime}
+																	onChange={(e) =>
+																		setInitData({
+																			...initData,
+																			time_window: { ...initData.time_window, startTime: e.target.value },
+																		})
+																	}
+																	className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
+																/>
+															</label>
+
+															<span> to </span>
+															<label htmlFor="">
+																<span className="sr-only">End Time</span>
+																<input
+																	type="time"
+																	value={initData?.time_window.endTime}
+																	onChange={(e) =>
+																		setInitData({
+																			...initData,
+																			time_window: { ...initData.time_window, endTime: e.target.value },
+																		})
+																	}
+																	className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
+																/>
+															</label>
+														</div>
+													</div>
 													<div className="flex p-2 flex-col ">
-														<span>Time Windows</span>
+														<span>Break Slots</span>
 
 														<TimeWindowInput onAddTimeWindow={handleAddTimeWindow} />
 
@@ -230,12 +276,7 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 																	<span>
 																		{tw.startTime} to {tw.endTime}
 																	</span>{" "}
-																	<TrashIcon
-																		className="h-4 w-4"
-																		onClick={() => {
-																			setTimeWindows(timeWindows.filter((_, i) => i !== index));
-																		}}
-																	/>
+																	<TrashIcon className="h-4 w-4" />
 																</div>
 															))}
 														</div>
@@ -273,4 +314,4 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 		</Transition.Root>
 	);
 };
-export default EditRoute;
+export default EditDriver;

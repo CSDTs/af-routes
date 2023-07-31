@@ -5,12 +5,12 @@ export interface Coordinates {
 
 export type TimeWindow = { startTime: string; endTime: string };
 
-type Break = {
+export type Break = {
 	id: number;
 	time_windows: TimeWindow[];
 	service: number;
-	description: string;
-	max_load: number[];
+	description?: string;
+	max_load?: number[];
 };
 export interface Driver {
 	id: number;
