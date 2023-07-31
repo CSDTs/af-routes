@@ -3,13 +3,19 @@ import { useRouteStore } from "../../store";
 import { Header, Subheader } from "../atoms";
 import ListingHeader from "../atoms/listings/ListingHeader";
 
-import { Location } from "@/types";
+import { Location, TimeWindow } from "@/types";
 import { PencilIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
 import ListingUnorderedList from "../atoms/listings/ListingUnorderedList";
 import { LocationTable } from "../molecules";
 import EditRoute from "../molecules/EditRoute";
+import EntryMenu from "../molecules/EntryMenu";
 
+// Convert time string from 24hr to 12hr
+const convertTime = (time: string) => {
+	const [hours, minutes] = time.split(":");
+	return `${parseInt(hours) % 12 || 12}:${minutes} ${parseInt(hours) >= 12 ? "PM" : "AM"}`;
+};
 const DestinationsTab = () => {
 	const locations = useRouteStore((state) => state.locations);
 	const [editStop, setEditStop] = useState(false);
@@ -38,24 +44,28 @@ const DestinationsTab = () => {
 								<div
 									key={idx}
 									className="p-3 m-1 font-medium text-left odd:bg-slate-300 even:bg-slate-100 flex justify-between items-center ">
-									<span className="w-3/5">
-										<ListingHeader>{listing.address}</ListingHeader>
+									<span className="w-10/12">
+										<h2 className="text-slate-800 font-bold">{listing.customer_name}</h2>
+										<h3 className="text-sm text-slate-800/80 font-medium">{listing.address}</h3>
+										{/* <ListingHeader>{listing.address}</ListingHeader> */}
 										<ListingUnorderedList>
 											<>
-												{listing.coordinates?.latitude || ""}, {listing.coordinates?.longitude || ""}
+												<span className="font-semibold">{listing.drop_off_duration}</span> min
 											</>
 											<>&middot;</>
-											<>{listing.drop_off_duration} minutes</>
-											<>&middot;</>
-											<>{listing.priority ? "High" : "Normal"} priority</>
-											<>{listing.id}</>
-										</ListingUnorderedList>
+											<>{listing.priority > 50 ? "High" : "Normal"} priority</>
+										</ListingUnorderedList>{" "}
+										<p className="text-xs text-slate-700 mt-2">
+											{listing.time_windows.map((tw: TimeWindow, idx: number) => (
+												<span key={idx}>
+													{convertTime(tw.startTime)} - {convertTime(tw.endTime)}
+													{idx !== listing.time_windows.length - 1 && <>&#44; </>}
+												</span>
+											))}
+										</p>
 									</span>
-
-									<ChatBubbleOvalLeftEllipsisIcon className="h-6 w-6" />
-									<PencilIcon
-										className="h-6 w-6"
-										onClick={() => {
+									<EntryMenu
+										editCallback={() => {
 											const temp = locations.filter((loc) => loc.id == listing.id)[0];
 
 											setCurrent(temp);

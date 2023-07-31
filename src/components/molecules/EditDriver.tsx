@@ -92,7 +92,7 @@ const EditDriver: FC<IProps> = ({ open, setOpen, stop }) => {
 	}, [timeWindows]);
 
 	useEffect(() => {
-		console.log(stop);
+		if (stop) setInitData(stop);
 		if (stop.break_slots) {
 			const slots = stop.break_slots.map((slot) => {
 				return { startTime: slot.time_windows[0].startTime, endTime: slot.time_windows[0].endTime };

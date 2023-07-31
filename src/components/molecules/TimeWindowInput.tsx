@@ -1,5 +1,5 @@
 import { TimeWindow } from "@/types";
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 
 // Interface for the time window data
 
@@ -11,7 +11,7 @@ const TimeWindowInput: React.FC<TimeWindowProps> = ({ onAddTimeWindow }) => {
 	const [startTime, setStartTime] = useState("");
 	const [endTime, setEndTime] = useState("");
 
-	const handleAddTimeWindow = (e) => {
+	const handleAddTimeWindow = (e: FormEvent) => {
 		e.preventDefault();
 
 		if (startTime && endTime) {

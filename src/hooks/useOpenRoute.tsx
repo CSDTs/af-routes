@@ -128,6 +128,7 @@ const useOpenRoute = () => {
 		return {
 			...breakSlot,
 			time_windows: timeSlots,
+			service: breakSlot.service * 60,
 		};
 	};
 

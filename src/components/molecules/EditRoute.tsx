@@ -86,6 +86,7 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 	}, [timeWindows]);
 
 	useEffect(() => {
+		if (stop) setInitData(stop);
 		if (stop.time_windows) {
 			setTimeWindows(stop.time_windows);
 		}

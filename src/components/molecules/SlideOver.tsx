@@ -1,8 +1,14 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { Fragment, useState } from "react";
+import { FC, Fragment, useState } from "react";
 <div className="absolute right-0 top-0 -mr-8 flex pr-2 pt-4 sm:-mr-10 sm:pr-4"></div>;
-export default function SlideOver({ open, setOpen, children }) {
+
+interface IProps {
+	open: boolean;
+	setOpen: any;
+	children: any;
+}
+const SlideOver: FC<IProps> = ({ open, setOpen, children }) => {
 	return (
 		<Transition.Root show={open} as={Fragment}>
 			<Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -62,4 +68,6 @@ export default function SlideOver({ open, setOpen, children }) {
 			</Dialog>
 		</Transition.Root>
 	);
-}
+};
+
+export default SlideOver;

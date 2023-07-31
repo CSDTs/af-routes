@@ -6,6 +6,7 @@ import "./App.css";
 import DashboardPage from "./pages/DashboardPage";
 import MessagingPage from "./pages/MessagingPage";
 import OrdersPage from "./pages/OrdersPage";
+import RoutePage from "./pages/RoutePage";
 import RoutingPage from "./pages/RoutingPage";
 import TrackingPage from "./pages/TrackingPage";
 
@@ -17,6 +18,7 @@ function App() {
 				{/* <Route path="/" element={<DashboardPage />} /> */}
 				{/* <Route path="/routing" element={<RoutingPage />} /> */}
 				<Route path="/" element={<RoutingPage />} />
+				<Route path="/route" element={<RoutePage />} />
 				{/* <Route path="/orders" element={<OrdersPage />} />
 				<Route path="/tracking" element={<TrackingPage />} />
 				<Route path="/messaging" element={<MessagingPage />} /> */}

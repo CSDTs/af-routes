@@ -49,11 +49,8 @@ const DriverTable = ({ dataKey }: TableProps) => {
 		setModalState(false);
 	};
 	const populateFromDatabase = () => {
-		const temp = driverData.map((driver) => {
-			return { id: parseInt(uniqueId()), ...driver };
-		});
-		tableHook.setData(temp);
-		setData(dataKey, temp);
+		tableHook.setData(driverData);
+		setData(dataKey, driverData);
 	};
 	const handleCSVUpload = (event: any) => {
 		const file = event.target.files[0];

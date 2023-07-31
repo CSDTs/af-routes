@@ -1,4 +1,4 @@
-import { Driver } from "@/types";
+import { Break, Driver } from "@/types";
 import { PencilIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
 import { useRouteStore } from "../../store";
@@ -7,7 +7,12 @@ import ListingHeader from "../atoms/listings/ListingHeader";
 import ListingSubheader from "../atoms/listings/ListingSubheader";
 import ListingUnorderedList from "../atoms/listings/ListingUnorderedList";
 import EditDriver from "../molecules/EditDriver";
+import EntryMenu from "../molecules/EntryMenu";
 import DriverTable from "../molecules/tables/DriverTable";
+const convertTime = (time: string) => {
+	const [hours, minutes] = time.split(":");
+	return `${parseInt(hours) % 12 || 12}:${minutes} ${parseInt(hours) >= 12 ? "PM" : "AM"}`;
+};
 const DriversTab = () => {
 	const drivers = useRouteStore((state) => state.drivers);
 	const [editDriver, setEditDriver] = useState(false);
@@ -35,24 +40,25 @@ const DriversTab = () => {
 									key={idx}
 									className="p-3 m-1 font-medium text-left odd:bg-slate-300 even:bg-slate-100 flex justify-between items-center ">
 									<span>
-										{" "}
-										<ListingHeader>{driver.name}</ListingHeader>
-										<ListingSubheader>{driver.address}</ListingSubheader>
+										<h2 className="text-slate-800 font-bold">{driver.name}</h2>
+										<h3 className="text-sm text-slate-800/80 font-medium">{driver.address}</h3>
+										{/* <ListingHeader>{driver.name}</ListingHeader>
+										<ListingSubheader>{driver.address}</ListingSubheader> */}
 										<ListingUnorderedList>
+											<>{driver.break_slots.length} break(s)</>
+											<>&middot;</>
+											<>{driver.max_travel_time} min max travel</>
+											<>&middot;</>
+											<>{driver.max_stops} stops max</>
+											<>&middot;</>
 											<>
-												{driver.coordinates?.latitude || ""}, {driver.coordinates?.longitude || ""}
+												Shift from {convertTime(driver.time_window.startTime)} -{" "}
+												{convertTime(driver.time_window.endTime)}
 											</>
-											<>&middot;</>
-											<>{driver.max_travel_time} minutes</>
-											<>&middot;</>
-											<>{driver.max_stops} stops</>
-											<>&middot;</>
-											<>Shift from 09:00 to 17:00</>
 										</ListingUnorderedList>{" "}
 									</span>
-									<PencilIcon
-										className="h-6 w-6"
-										onClick={() => {
+									<EntryMenu
+										editCallback={() => {
 											const temp = drivers.filter((loc) => loc.id == driver.id)[0];
 
 											setCurrent(temp);
