@@ -1,13 +1,17 @@
+import { Driver } from "@/types";
+import { PencilIcon } from "@heroicons/react/20/solid";
+import { useState } from "react";
 import { useRouteStore } from "../../store";
 import { Header, Subheader } from "../atoms";
 import ListingHeader from "../atoms/listings/ListingHeader";
 import ListingSubheader from "../atoms/listings/ListingSubheader";
 import ListingUnorderedList from "../atoms/listings/ListingUnorderedList";
-
+import EditDriver from "../molecules/EditDriver";
 import DriverTable from "../molecules/tables/DriverTable";
 const DriversTab = () => {
 	const drivers = useRouteStore((state) => state.drivers);
-
+	const [editDriver, setEditDriver] = useState(false);
+	const [current, setCurrent] = useState<Driver | null>(null);
 	return (
 		<>
 			{/* <Header>Drivers</Header>
@@ -20,30 +24,44 @@ const DriversTab = () => {
 				<p className="mx-auto my-auto p-3">You don't have any drivers added.</p>
 				// </div>
 			)}
-
+			{current && current.address && <EditDriver open={editDriver} setOpen={setEditDriver} stop={current} />}
 			{drivers.length !== 0 && (
 				<div className="flex overflow-y-auto text-center h-full my-5">
-					<ul className="w-full ">
+					<section className="w-full ">
 						{drivers.length > 0 &&
 							drivers[0]?.address != "" &&
 							drivers.map((driver, idx) => (
-								<li key={idx} className="px-3 py-2 m-1 font-medium text-left odd:bg-slate-300 even:bg-slate-100">
-									<ListingHeader>{driver.name}</ListingHeader>
-									<ListingSubheader>{driver.address}</ListingSubheader>
-									<ListingUnorderedList>
-										<li>
-											{driver.coordinates?.latitude || ""}, {driver.coordinates?.longitude || ""}
-										</li>
-										<li>&middot;</li>
-										<li>{driver.max_travel_time} minutes</li>
-										<li>&middot;</li>
-										<li>{driver.max_stops} stops</li>
-										<li>&middot;</li>
-										<>Shift from 09:00 to 17:00</>
-									</ListingUnorderedList>
-								</li>
+								<div
+									key={idx}
+									className="p-3 m-1 font-medium text-left odd:bg-slate-300 even:bg-slate-100 flex justify-between items-center ">
+									<span>
+										{" "}
+										<ListingHeader>{driver.name}</ListingHeader>
+										<ListingSubheader>{driver.address}</ListingSubheader>
+										<ListingUnorderedList>
+											<>
+												{driver.coordinates?.latitude || ""}, {driver.coordinates?.longitude || ""}
+											</>
+											<>&middot;</>
+											<>{driver.max_travel_time} minutes</>
+											<>&middot;</>
+											<>{driver.max_stops} stops</>
+											<>&middot;</>
+											<>Shift from 09:00 to 17:00</>
+										</ListingUnorderedList>{" "}
+									</span>
+									<PencilIcon
+										className="h-6 w-6"
+										onClick={() => {
+											const temp = drivers.filter((loc) => loc.id == driver.id)[0];
+
+											setCurrent(temp);
+											setEditDriver(true);
+										}}
+									/>
+								</div>
 							))}
-					</ul>
+					</section>
 				</div>
 			)}
 		</>

@@ -8,12 +8,16 @@ import { useRouteStore } from "../../../store";
 import { uniqueId } from "lodash";
 import * as Papa from "papaparse";
 import { CloseBtn, LoadingIndicator, Modal, PrimaryBtn, SecondaryBtn } from "../../atoms/";
+import AddDriver from "../AddDriver";
+import AddRoute from "../AddRoute";
 
 interface TableProps {
 	dataKey: string;
 }
 
 const DriverTable = ({ dataKey }: TableProps) => {
+	const [createDriver, setCreateDriver] = useState(false);
+	const [editDriver, setEditDriver] = useState(false);
 	const { modalOpen, setModalState } = useModalWithData();
 	const currentDrivers = useRouteStore((state) => state[dataKey]);
 	const setData = useRouteStore((state) => state.setData);
@@ -85,7 +89,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 	return (
 		<>
 			<div className="flex items-center justify-center gap-4 mx-auto bg-white w-full p-3 shadow my-2">
-				<PrimaryBtn clickHandler={() => setModalState(true)}>Update </PrimaryBtn>
+				<PrimaryBtn clickHandler={() => setCreateDriver(true)}>Add Stop</PrimaryBtn>
 				<SecondaryBtn clickHandler={populateFromDatabase}>Autofill</SecondaryBtn>
 				<label className="cursor-pointer flex w-full text-center">
 					<span className="rounded-md bg-slate-500 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 w-full cursor-pointer">
@@ -94,7 +98,7 @@ const DriverTable = ({ dataKey }: TableProps) => {
 					<input type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
 				</label>
 			</div>
-
+			<AddDriver open={createDriver} setOpen={setCreateDriver} />
 			<Modal title="Drivers" isActive={modalOpen} handleClose={closeModal}>
 				<div className="mt-2">
 					<p className="text-sm text-gray-500">Fill out the table below to start adding drivers to the map.</p>
