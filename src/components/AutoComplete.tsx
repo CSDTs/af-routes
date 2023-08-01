@@ -1,4 +1,5 @@
 import { Location } from "@/types";
+import { QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 type Address = {
@@ -34,6 +35,12 @@ const AutocompleteAddressInput: React.FC<IProps> = ({ setData, editValue }) => {
 		const newValue = event.target.value;
 		setInputValue({ display_name: newValue, lat: 0, lon: 0, place_id: 0 });
 
+		const data = {
+			address: newValue,
+			coordinates: { latitude: 0, longitude: 0 },
+		};
+		setData(data as Partial<Location>);
+
 		// Clear the previous timeout, if any
 		if (timeoutId) {
 			clearTimeout(timeoutId);
@@ -66,7 +73,16 @@ const AutocompleteAddressInput: React.FC<IProps> = ({ setData, editValue }) => {
 	}, [editValue]);
 	return (
 		<label className="w-full relative">
-			<span>Starting Address </span>
+			<span className="flex gap-4">
+				Starting Address
+				<span className="group relative w-max">
+					<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
+					<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
+						Start typing the address. Once you find a match, select it from the dropdown. Invalid addresses will not be
+						added to the routes.
+					</span>
+				</span>
+			</span>
 			<input
 				type="text"
 				name="address"

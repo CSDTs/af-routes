@@ -9,4 +9,18 @@ import SecondaryBtn from "./buttons/SecondaryBtn";
 import LoadingIndicator from "./indicators/LoadingIndicator";
 import Header from "./text/Header";
 import Subheader from "./text/Subheader";
-export { ApproveBtn, CloseBtn, Header, LoadingIndicator, Modal, NextBtn, PrevBtn, PrimaryBtn, SecondaryBtn, Subheader };
+
+import Hint from "./controls/Hint";
+export {
+	ApproveBtn,
+	CloseBtn,
+	Header,
+	Hint,
+	LoadingIndicator,
+	Modal,
+	NextBtn,
+	PrevBtn,
+	PrimaryBtn,
+	SecondaryBtn,
+	Subheader,
+};

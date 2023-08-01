@@ -1,18 +1,20 @@
 import { useRouteStore } from "@/store";
 import { fetchAddressData } from "@/utils/geocodeAddress";
-import getFormValues from "@/utils/getFormValues";
+
 import { Dialog, Transition } from "@headlessui/react";
-import { QuestionMarkCircleIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { TrashIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 import { ChangeEvent, FC, FormEvent, Fragment, createRef, useEffect, useState } from "react";
 
 import TimeWindowInput from "./TimeWindowInput";
 
-import { Driver, Location, TimeWindow } from "@/types";
+import { Break, Driver, Location, TimeWindow } from "@/types";
 
+import { convertTime } from "@/utils/timeHandlers";
 import { uniqueId } from "lodash";
 import AutocompleteAddressInput from "../AutoComplete";
+import { Hint } from "../atoms";
 
 interface IProps {
 	open: boolean;
@@ -21,47 +23,47 @@ interface IProps {
 }
 const EditDriver: FC<IProps> = ({ open, setOpen, stop }) => {
 	const tableData = createRef<HTMLFormElement>();
-	const locations = useRouteStore((state) => state.locations);
-	const updateLocation = useRouteStore((state) => state.updateLocation);
-
-	const [addresses, setAddresses] = useState([]);
+	const updateDriver = useRouteStore((state) => state.updateDriver);
 
 	const [initData, setInitData] = useState<Driver>(stop);
 
 	const saveRoute = async () => {
-		const formData = getFormValues(tableData);
+		await fetchAddressData(initData.address)
+			.then((data) => {
+				// TODO: Rework this to check against geocoding data to verify every address is valid. Currently assuming that any autofill is valid, any selected address is valid.
+				if (initData?.coordinates?.latitude === 0 && initData?.coordinates?.longitude === 0) {
+					throw new Error("Coordinates are invalid. Please try again.");
+				}
 
-		console.log(initData);
-
-		if (formData.address == "") return;
-
-		await fetchAddressData(formData.address).then((data) => {
-			if (data.length > 1 || (initData?.coordinates?.latitude == 0 && initData?.coordinates?.longitude == 0)) {
-				console.log(data);
-				setAddresses(data);
-			}
-		});
-
-		if (initData?.coordinates?.latitude == 0 && initData?.coordinates?.longitude == 0) {
-			console.log("address not found");
-			return;
-		}
-
-		const isAddressADuplicate = locations.some((location) => location.address === initData.address);
-
-		if (isAddressADuplicate) {
-			console.log("address is a duplicate");
-			return;
-		}
-
-		updateLocation(stop.id, initData);
-		setOpen(false);
+				updateDriver(stop.id, initData);
+				setOpen(false);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
 
-	const [timeWindows, setTimeWindows] = useState<TimeWindow[]>([]);
+	const handleAddTimeWindow = (timeWindow: TimeWindow, service?: number) => {
+		//Typescript is complaining about service being undefined, but it's not
+		if (!service) return;
+		// First, find an existing slot with the same service time
+		const existingSlot = initData.break_slots.find((slot) => slot.service === service);
 
-	const handleAddTimeWindow = (timeWindow: TimeWindow) => {
-		setTimeWindows([...timeWindows, timeWindow]);
+		if (existingSlot) {
+			// If there is an existing slot, add the new time window to it
+			existingSlot.time_windows.push(timeWindow);
+		} else {
+			// If there isn't an existing slot, create a new one
+			const newSlot: Break = {
+				id: parseInt(uniqueId()),
+				time_windows: [timeWindow],
+				service: service,
+			};
+			initData.break_slots.push(newSlot);
+		}
+
+		// Update the initData state to trigger a re-render
+		setInitData({ ...initData });
 	};
 
 	const updateData = (e: ChangeEvent<HTMLInputElement>) => {
@@ -77,32 +79,30 @@ const EditDriver: FC<IProps> = ({ open, setOpen, stop }) => {
 		e.preventDefault();
 		saveRoute();
 	};
-	const createBreak = (window: TimeWindow) => {
-		return {
-			id: parseInt(uniqueId()),
-			time_windows: [{ startTime: window.startTime, endTime: window.endTime }],
-			service: 0,
-		};
-	};
-	useEffect(() => {
-		const breaks = timeWindows.map((tw) => createBreak(tw));
-		if (timeWindows.length > 0) {
-			setInitData({ ...initData, break_slots: breaks });
-		}
-	}, [timeWindows]);
 
-	useEffect(() => {
-		if (stop) setInitData(stop);
-		if (stop.break_slots) {
-			const slots = stop.break_slots.map((slot) => {
-				return { startTime: slot.time_windows[0].startTime, endTime: slot.time_windows[0].endTime };
-			});
-			setTimeWindows(slots);
-		}
-	}, [stop]);
 	const setAddress = (data: Partial<Location>) => {
 		setInitData({ ...initData, ...data });
 	};
+
+	const removeBreakTimeWindow = (slot: Break, timeWindowId: number) => {
+		const everyBreakButThisOne = initData.break_slots.filter((breakSlot) => breakSlot.id !== slot.id);
+
+		const breakSlice = {
+			...slot,
+			time_windows: slot.time_windows.filter((_, i) => i !== timeWindowId),
+		};
+
+		const isBreakSliceEmpty = breakSlice.time_windows.length === 0;
+
+		const slots = isBreakSliceEmpty ? [...everyBreakButThisOne] : [...everyBreakButThisOne, breakSlice];
+		setInitData({
+			...initData,
+			break_slots: slots,
+		});
+	};
+	useEffect(() => {
+		if (stop) setInitData(stop);
+	}, [open]);
 
 	return (
 		<Transition.Root show={open} as={Fragment}>
@@ -178,67 +178,49 @@ const EditDriver: FC<IProps> = ({ open, setOpen, stop }) => {
 														</label>{" "}
 													</div>
 													<div className="flex flex-row  p-2 gap-4">
-														{initData.address && (
-															<AutocompleteAddressInput
-																setData={setAddress}
-																editValue={{
-																	display_name: initData.address,
-																	lat: initData?.coordinates?.latitude as number,
-																	lon: initData?.coordinates?.longitude as number,
-																	place_id: 0,
-																}}
-															/>
-														)}
+														<AutocompleteAddressInput
+															setData={setAddress}
+															editValue={{
+																display_name: initData.address,
+																lat: initData?.coordinates?.latitude as number,
+																lon: initData?.coordinates?.longitude as number,
+																place_id: 0,
+															}}
+														/>
 													</div>
 													<div className="flex gap-4 p-2">
-														<label className=" ">
-															<span className="flex gap-4">
-																Max Travel Time{" "}
-																<span className="group relative w-max">
-																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
-																	<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																		How long (roughly in minutes) should the driver take for any given stop?
-																	</span>
-																</span>
-															</span>
+														<label>
+															<Hint
+																label="Max Travel Time"
+																description="How long (roughly in minutes) should the driver take for any given stop?"
+															/>
 															<input
 																name="max_travel_time"
 																type="number"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
 																value={initData?.max_travel_time}
 																onChange={updateData}
+																aria-label="Max Travel Time"
 															/>
 														</label>
-														<label className="">
-															<span className="flex gap-4">
-																Max Stops{" "}
-																<span className="group relative w-max">
-																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
-																	<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																		How many stops can the driver make?
-																	</span>
-																</span>
-															</span>
+														<label>
+															<Hint label="Max Stops" description="How many stops can the driver make?" />
 															<input
 																name="max_stops"
 																type="number"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
 																value={initData?.max_stops}
 																onChange={updateData}
+																aria-label="Max Stops"
 															/>
 														</label>
 													</div>
 
 													<div className="flex p-2 flex-col">
-														<span className="flex gap-4">
-															Time Window{" "}
-															<span className="group relative w-max">
-																<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
-																<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																	How long is their shift? What is the time window in which they can deliver the order?
-																</span>
-															</span>
-														</span>
+														<Hint
+															label="Time Window"
+															description="How long is their shift? What is the time window in which they can deliver the order?"
+														/>
 
 														<div className="flex items-center gap-4">
 															<label>
@@ -274,49 +256,45 @@ const EditDriver: FC<IProps> = ({ open, setOpen, stop }) => {
 														</div>
 													</div>
 													<div className="flex p-2 flex-col ">
-														<span className="flex gap-4">
-															Break Slots{" "}
-															<span className="group relative w-max">
-																<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
-																<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																	When can the driver take a break?
-																</span>
-															</span>
-														</span>
-
-														<TimeWindowInput onAddTimeWindow={handleAddTimeWindow} />
-
-														<div className="w-1/2 mt-4">
-															{timeWindows.map((tw, index) => (
+														<Hint label="Break Slots" description="When can the driver take a break?" />
+														<TimeWindowInput onAddTimeWindow={handleAddTimeWindow} enableService />
+														<div className="w-full mt-4">
+															{initData?.break_slots?.map((slot, index) => (
 																<div key={index} className="flex gap-4 items-center py-0.5 ">
-																	<span>
-																		{tw.startTime} to {tw.endTime}
-																	</span>{" "}
-																	<TrashIcon className="h-4 w-4" />
+																	<span>{slot.service} min: </span>
+
+																	{slot.time_windows.map((tw, idx) => (
+																		<span className="flex items-center gap-2 flex-wrap">
+																			<span key={idx}>
+																				{convertTime(tw.startTime)} to {convertTime(tw.endTime)}
+																			</span>
+																			<TrashIcon
+																				className="h-4 w-4"
+																				onClick={() => {
+																					removeBreakTimeWindow(slot, idx);
+																				}}
+																			/>{" "}
+																			{idx !== slot.time_windows.length - 1 && <>&#44; </>}
+																		</span>
+																	))}
 																</div>
 															))}
 														</div>
 													</div>
 												</section>
 												<div className="mt-auto w-full flex py-4">
-													{" "}
-													{/* <button
-														className="px-2 py-1 my-2 font-bold text-white bg-indigo-500 rounded hover:bg-indigo-700"
-														onClick={saveRoute}>
-														Save and Add Another
-													</button> */}
 													<button
+														type="button"
 														onClick={() => setOpen(false)}
 														className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
-														{" "}
 														Cancel
-													</button>{" "}
+													</button>
 													<button
 														type="submit"
 														className="ml-auto px-3 py-2  font-semibold text-white bg-slate-500 rounded hover:bg-slate-700 disabled:bg-slate-500/30 disabled:cursor-not-allowed text-sm"
 														disabled={initData?.coordinates?.latitude === 0 && initData?.coordinates?.longitude === 0}>
 														Save and Close
-													</button>{" "}
+													</button>
 												</div>
 											</form>
 										</div>

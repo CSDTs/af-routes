@@ -8,13 +8,10 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { ChangeEvent, FC, FormEvent, Fragment, createRef, useEffect, useState } from "react";
 
 import TimeWindowInput from "./TimeWindowInput";
-interface TimeWindowData {
-	startTime: string;
-	endTime: string;
-}
 
-import { Location } from "@/types";
+import { Location, TimeWindow } from "@/types";
 
+import { Hint } from "@/components/atoms";
 import AutocompleteAddressInput from "../AutoComplete";
 
 interface IProps {
@@ -27,42 +24,39 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 	const locations = useRouteStore((state) => state.locations);
 	const updateLocation = useRouteStore((state) => state.updateLocation);
 
-	const [addresses, setAddresses] = useState([]);
-
 	const [initData, setInitData] = useState<Location>(stop);
 
 	const saveRoute = async () => {
-		const formData = getFormValues(tableData);
+		await fetchAddressData(initData.address)
+			.then((data) => {
+				// TODO:Add feedback for duplicate addresses so user knows what to
+				const duplicate = locations.find((loc) => loc.address === initData.address);
+				if (duplicate) {
+					throw new Error("Address is a duplicate. Please try again.");
+				}
 
-		if (formData.address == "") return;
+				// TODO: Rework this to check against geocoding data to verify every address is valid. Currently assuming that any autofill is valid, any selected address is valid.
+				if (initData?.coordinates?.latitude === 0 && initData?.coordinates?.longitude === 0) {
+					throw new Error("Coordinates are invalid. Please try again.");
+				}
 
-		await fetchAddressData(formData.address).then((data) => {
-			if (data.length > 1 || (initData?.coordinates?.latitude == 0 && initData?.coordinates?.longitude == 0)) {
-				console.log(data);
-				setAddresses(data);
-			}
-		});
-
-		if (initData?.coordinates?.latitude == 0 && initData?.coordinates?.longitude == 0) {
-			console.log("address not found");
-			return;
-		}
-
-		const isAddressADuplicate = locations.some((location) => location.address === initData.address);
-
-		if (isAddressADuplicate) {
-			console.log("address is a duplicate");
-			return;
-		}
-
-		updateLocation(stop.id, initData);
-		setOpen(false);
+				updateLocation(stop.id, initData);
+				setOpen(false);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
 
-	const [timeWindows, setTimeWindows] = useState<TimeWindowData[]>([]);
+	const handleAddTimeWindow = (timeWindow: TimeWindow) => {
+		// Check if the time window exists already
+		const exists = initData.time_windows.find(
+			(tw) => tw.startTime === timeWindow.startTime && tw.endTime === timeWindow.endTime
+		);
 
-	const handleAddTimeWindow = (timeWindow: TimeWindowData) => {
-		setTimeWindows([...timeWindows, timeWindow]);
+		// TODO: Add user feedback for duplicate time windows
+		if (!exists) setInitData({ ...initData, time_windows: [...initData.time_windows, timeWindow] });
+		else throw new Error("Time window already exists. Please try again.");
 	};
 
 	const updateData = (e: ChangeEvent<HTMLInputElement>) => {
@@ -79,21 +73,13 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 		saveRoute();
 	};
 
-	useEffect(() => {
-		if (timeWindows.length > 0) {
-			setInitData({ ...initData, time_windows: timeWindows });
-		}
-	}, [timeWindows]);
-
-	useEffect(() => {
-		if (stop) setInitData(stop);
-		if (stop.time_windows) {
-			setTimeWindows(stop.time_windows);
-		}
-	}, [stop]);
 	const setAddress = (data: Partial<Location>) => {
 		setInitData({ ...initData, ...data });
 	};
+
+	useEffect(() => {
+		if (stop) setInitData(stop);
+	}, [open]);
 
 	return (
 		<Transition.Root show={open} as={Fragment}>
@@ -180,61 +166,46 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 														)}
 													</div>
 													<div className="flex gap-4 p-2">
-														<label className=" ">
-															<span className="flex justify-between">
-																Drop Off Duration{" "}
-																<span className="group relative w-max">
-																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
-																	<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																		How long (roughly in minutes) should the drop off take? This is from when the driver
-																		arrives at the stop to when they leave.
-																	</span>
-																</span>
-															</span>
+														<label>
+															<Hint
+																label="Drop Off Duration"
+																description="How long (roughly in minutes) should the drop off take? This is from when the driver
+																arrives at the stop to when they leave."
+															/>
 															<input
 																name="drop_off_duration"
 																type="number"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
 																value={initData?.drop_off_duration}
 																onChange={updateData}
+																aria-label="Drop Off Duration"
 															/>
 														</label>
-														<label className="">
-															<span className="flex justify-between">
-																Priority{" "}
-																<span className="group relative w-max">
-																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
-																	<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																		On a scale of 1 to 100, with 1 being the highest and 100 being the lowest, rate the
-																		priority of this stop.
-																	</span>
-																</span>
-															</span>
+														<label>
+															<Hint
+																label="Priority"
+																description="	On a scale of 1 to 100, with 1 being the highest and 100 being the lowest, rate the
+															priority of this stop."
+															/>
 															<input
 																name="priority"
 																type="number"
 																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
 																value={initData?.priority}
 																onChange={updateData}
+																aria-label="Priority"
 															/>
 														</label>
 													</div>
 
 													<div className="flex p-2 flex-col ">
-														<span className="flex gap-4">
-															Time Windows
-															<span className="group relative w-max">
-																<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
-																<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
-																	When can the delivery be made? If you don't have a time window, leave this blank.
-																</span>
-															</span>
-														</span>
-
+														<Hint
+															label="Time Windows"
+															description="When can the delivery be made? If you don't have a time window, leave this blank."
+														/>
 														<TimeWindowInput onAddTimeWindow={handleAddTimeWindow} />
-
 														<div className="w-1/2 mt-4">
-															{timeWindows.map((tw, index) => (
+															{initData.time_windows.map((tw, index) => (
 																<div key={index} className="flex gap-4 items-center py-0.5 ">
 																	<span>
 																		{tw.startTime} to {tw.endTime}
@@ -242,7 +213,10 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 																	<TrashIcon
 																		className="h-4 w-4"
 																		onClick={() => {
-																			setTimeWindows(timeWindows.filter((_, i) => i !== index));
+																			setInitData({
+																				...initData,
+																				time_windows: initData.time_windows.filter((_, i) => i !== index),
+																			});
 																		}}
 																	/>
 																</div>
@@ -251,12 +225,6 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 													</div>
 												</section>
 												<div className="mt-auto w-full flex py-4">
-													{" "}
-													{/* <button
-														className="px-2 py-1 my-2 font-bold text-white bg-indigo-500 rounded hover:bg-indigo-700"
-														onClick={saveRoute}>
-														Save and Add Another
-													</button> */}
 													<button
 														onClick={() => setOpen(false)}
 														className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
