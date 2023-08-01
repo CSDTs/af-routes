@@ -363,7 +363,7 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 													</div>
 													<div className="flex gap-4 p-2">
 														<label className=" ">
-															<span className="flex justify-between">
+															<span className="flex gap-4">
 																Max Travel Time{" "}
 																<span className="group relative w-max">
 																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
@@ -381,7 +381,7 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 															/>
 														</label>
 														<label className="">
-															<span className="flex justify-between">
+															<span className="flex gap-4">
 																Max Stops{" "}
 																<span className="group relative w-max">
 																	<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
@@ -401,7 +401,15 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 													</div>
 
 													<div className="flex p-2 flex-col">
-														<span>Time Window</span>
+														<span className="flex gap-4">
+															Time Window{" "}
+															<span className="group relative w-max">
+																<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
+																<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
+																	How long is their shift? What is the time window in which they can deliver the order?
+																</span>
+															</span>
+														</span>
 
 														<div className="flex items-center gap-4">
 															<label>
@@ -437,7 +445,15 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 														</div>
 													</div>
 													<div className="flex p-2 flex-col ">
-														<span>Break Slots</span>
+														<span className="flex gap-4">
+															Break Slots{" "}
+															<span className="group relative w-max">
+																<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
+																<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
+																	When can the driver take a break?
+																</span>
+															</span>
+														</span>
 
 														<TimeWindowInput onAddTimeWindow={handleAddTimeWindow} />
 

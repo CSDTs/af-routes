@@ -392,7 +392,15 @@ const AddRoute: FC<IProps> = ({ open, setOpen }) => {
 													</div>
 
 													<div className="flex p-2 flex-col ">
-														<span>Time Windows</span>
+														<span className="flex gap-4">
+															Time Windows
+															<span className="group relative w-max">
+																<QuestionMarkCircleIcon className="text-slate-400 w-6 h-6" />
+																<span className="pointer-events-none absolute -top-7 left-0 w-max opacity-0 transition-opacity group-hover:opacity-100 bg-slate-200 text-slate-500 max-w-md rounded-md p-2 shadow-md">
+																	When can the delivery be made? If you don't have a time window, leave this blank.
+																</span>
+															</span>
+														</span>
 
 														<TimeWindowInput onAddTimeWindow={handleAddTimeWindow} />
 
