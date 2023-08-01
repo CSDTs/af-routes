@@ -11,13 +11,16 @@ import "leaflet-geosearch/dist/geosearch.css";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import { GeoJSON, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
-const ContextMenu = ({ x, y }) => {
+const ContextMenu = ({ x, y }: { x: any; y: any }) => {
 	const mapRef = useRef(null);
 
 	// Get the map container's offset
-	const offsetX = mapRef.current ? mapRef.current.offsetLeft : -225;
-	const offsetY = mapRef.current ? mapRef.current.offsetTop : 10;
+	// const offsetX = mapRef.current ? mapRef.current?.offsetLeft : -225;
+	// const offsetY = mapRef.current ? mapRef.current?.offsetTop : 10;
 
+	// TODO: Fix the offset so it doesn't break when the map is moved
+	const offsetX = -225;
+	const offsetY = 10;
 	return (
 		<div
 			style={{ top: y - offsetY, left: x - offsetX }}
@@ -54,7 +57,7 @@ const ContextMenu = ({ x, y }) => {
 	);
 };
 
-const LocationPin = ({ onRightClick, handleMenuClose }) => {
+const LocationPin = ({ onRightClick, handleMenuClose }: { onRightClick: any; handleMenuClose: any }) => {
 	const [position, setPosition] = useState<any>(null);
 
 	useMapEvents({
@@ -114,9 +117,9 @@ const RoutingMap = () => {
 	const [markers, setMarkers] = useState([]);
 	const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
 
-	const handleDoubleClick = (event) => {
-		setMarkers([...markers, [event.latlng.lat, event.latlng.lng]]);
-	};
+	// const handleDoubleClick = (event) => {
+	// 	setMarkers([...markers, [event.latlng.lat, event.latlng.lng]]);
+	// };
 	//Recalculate the bounds of the current map
 	useEffect(() => {
 		if (((locations && locations.length > 0) || (drivers && drivers.length > 0)) && mapRef.current) {
@@ -139,7 +142,7 @@ const RoutingMap = () => {
 			});
 	}, [optimization]);
 
-	const handleRightClick = (event) => {
+	const handleRightClick = (event: any) => {
 		setContextMenu({
 			visible: true,
 			x: event.originalEvent.pageX,
@@ -189,6 +192,7 @@ const RoutingMap = () => {
 					onRightClick={handleRightClick}
 					handleMenuClose={() => {
 						setContextMenu({
+							...contextMenu,
 							visible: false,
 						});
 					}}
