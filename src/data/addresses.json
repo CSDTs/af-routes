@@ -1,6 +1,5 @@
 [
 	{
-		"id": 13,
 		"customer_name": "Bob Ross",
 		"address": "2121 Oak Valley Dr, Ann Arbor, MI 48103, United States",
 		"coordinates": { "latitude": 42.2542447, "longitude": -83.7778416 },
@@ -12,7 +11,6 @@
 		]
 	},
 	{
-		"id": 1,
 		"customer_name": "Tonya Harding",
 		"address": "767 N University Ave, Ann Arbor, MI 48109, United States",
 		"coordinates": { "latitude": 42.2787389, "longitude": -83.7401024 },
@@ -21,7 +19,6 @@
 		"time_windows": [{ "startTime": "09:00", "endTime": "10:00" }]
 	},
 	{
-		"id": 2,
 		"customer_name": "Carlos Santana",
 		"address": "1201 S Main St, Ann Arbor, MI 48104, United States",
 		"coordinates": { "latitude": 42.2666423, "longitude": -83.7499573 },
@@ -30,7 +27,6 @@
 		"time_windows": [{ "startTime": "08:00", "endTime": "18:00" }]
 	},
 	{
-		"id": 3,
 		"customer_name": "Megan Wolf",
 		"address": "220 E Ann St, Ann Arbor, MI 48104, United States",
 		"coordinates": { "latitude": 42.2819481, "longitude": -83.7465398 },
@@ -43,7 +39,6 @@
 		]
 	},
 	{
-		"id": 4,
 		"customer_name": "Albert Einstein",
 		"address": "1800 N Dixboro Rd, Ann Arbor, MI 48105, United States",
 		"coordinates": { "latitude": 42.2991074, "longitude": -83.6658018 },
@@ -52,7 +47,6 @@
 		"time_windows": [{ "startTime": "14:00", "endTime": "16:00" }]
 	},
 	{
-		"id": 5,
 		"customer_name": "Kat Williams",
 		"address": "304 S Ashley St, Ann Arbor, MI 48104, United States",
 		"coordinates": { "latitude": 42.2794184, "longitude": -83.7500808 },
@@ -64,7 +58,6 @@
 		]
 	},
 	{
-		"id": 6,
 		"customer_name": "Tim Allen",
 		"address": "8801 N Territorial Rd, Dexter, MI 48130, United States",
 		"coordinates": { "latitude": 42.3846897, "longitude": -83.9069447 },

@@ -47,8 +47,14 @@ const LocationTable = ({ dataKey }: TableProps) => {
 		setModalState(false);
 	};
 	const populateFromDatabase = () => {
-		tableHook.setData(locationData);
-		setData(dataKey, locationData);
+		const data = locationData.map((location) => {
+			return {
+				...location,
+				id: parseInt(uniqueId()),
+			};
+		});
+		tableHook.setData(data);
+		setData(dataKey, data);
 	};
 
 	const handleCSVUpload = (event: any) => {

@@ -5,6 +5,7 @@ import { useModalWithData } from "../../../hooks/useModal";
 import useTable from "../../../hooks/useTable";
 import { useRouteStore } from "../../../store";
 
+import { Driver } from "@/types";
 import { uniqueId } from "lodash";
 import * as Papa from "papaparse";
 import { CloseBtn, LoadingIndicator, Modal, PrimaryBtn, SecondaryBtn } from "../../atoms/";
@@ -49,8 +50,21 @@ const DriverTable = ({ dataKey }: TableProps) => {
 		setModalState(false);
 	};
 	const populateFromDatabase = () => {
-		tableHook.setData(driverData);
-		setData(dataKey, driverData);
+		const data = driverData.map((driver) => {
+			return {
+				...driver,
+				id: parseInt(uniqueId()),
+				break_slots: driver.break_slots.map((slot) => {
+					return {
+						...slot,
+						id: parseInt(uniqueId()),
+					};
+				}),
+			};
+		});
+
+		tableHook.setData(data);
+		setData(dataKey, data);
 	};
 	const handleCSVUpload = (event: any) => {
 		const file = event.target.files[0];
@@ -62,13 +76,15 @@ const DriverTable = ({ dataKey }: TableProps) => {
 				// Transform the data into the expected format
 				const parsedData = results.data.map((row: any, index) => ({
 					id: parseInt(uniqueId()),
-					address: row.address.replace(/\\,/g, ","),
+					// address: row.address.replace(/\\,/g, ","),
+					address: row.address,
 					name: row.name,
 					max_travel_time: row.max_travel_time,
-					time_window: [row.time_window_start, row.time_window_end],
+					time_window: { startTime: row.startTime, endTime: row.endTime },
 					max_stops: row.max_stops,
 					break_slots: [
 						{
+							id: parseInt(uniqueId()),
 							time_windows: [[row.break_slot_start, row.break_slot_end]],
 							service: row.service,
 						},

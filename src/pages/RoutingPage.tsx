@@ -25,10 +25,7 @@ const RoutingPage = () => {
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [stopType, setStopType] = useState("pickup");
 
-	const tabPanelStyle = classNames(
-		"rounded-xl p-3 h-full flex flex-col  ",
-		"ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-	);
+	const tabPanelStyle = classNames("rounded-xl p-3 h-full flex flex-col  ");
 
 	const nextTab = () => setSelectedIndex(selectedIndex + 1);
 	const prevTab = () => setSelectedIndex(selectedIndex - 1);
@@ -85,6 +82,7 @@ const RoutingPage = () => {
 								</div>
 							</div> */}
 							<p>Manage Stops</p>
+
 							<DestinationsTab />
 						</Tab.Panel>
 						<Tab.Panel key={1} className={tabPanelStyle}>
