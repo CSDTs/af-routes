@@ -1,8 +1,8 @@
 import { useRouteStore } from "@/store";
 import { fetchAddressData } from "@/utils/geocodeAddress";
-import getFormValues from "@/utils/getFormValues";
+
 import { Dialog, Transition } from "@headlessui/react";
-import { QuestionMarkCircleIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { TrashIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 import { ChangeEvent, FC, FormEvent, Fragment, createRef, useEffect, useState } from "react";
@@ -131,7 +131,6 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 											<Dialog.Title className="text-3xl font-semibold leading-6 text-gray-900">Edit Stop</Dialog.Title>
 										</div>
 										<div className="relative mt-6 flex-1 px-4 sm:px-6">
-											{" "}
 											<div className="mt-2">
 												<p className="text-sm text-gray-500">
 													Fill out the table below to start adding destinations to the map.
@@ -150,20 +149,18 @@ const EditRoute: FC<IProps> = ({ open, setOpen, stop }) => {
 																value={initData?.customer_name}
 																onChange={updateData}
 															/>
-														</label>{" "}
+														</label>
 													</div>
 													<div className="flex flex-row  p-2 gap-4">
-														{initData.address && (
-															<AutocompleteAddressInput
-																setData={setAddress}
-																editValue={{
-																	display_name: initData.address,
-																	lat: initData?.coordinates?.latitude as number,
-																	lon: initData?.coordinates?.longitude as number,
-																	place_id: 0,
-																}}
-															/>
-														)}
+														<AutocompleteAddressInput
+															setData={setAddress}
+															editValue={{
+																display_name: initData.address,
+																lat: initData?.coordinates?.latitude as number,
+																lon: initData?.coordinates?.longitude as number,
+																place_id: 0,
+															}}
+														/>
 													</div>
 													<div className="flex gap-4 p-2">
 														<label>

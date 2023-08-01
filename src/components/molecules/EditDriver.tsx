@@ -100,6 +100,7 @@ const EditDriver: FC<IProps> = ({ open, setOpen, stop }) => {
 			break_slots: slots,
 		});
 	};
+
 	useEffect(() => {
 		if (stop) setInitData(stop);
 	}, [open]);
