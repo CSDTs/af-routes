@@ -1,71 +1,42 @@
+import { AutocompleteAddressInput, Hint, TimeWindowInput } from "@/components/atoms";
 import { useRouteStore } from "@/store";
 import { fetchAddressData } from "@/utils/geocodeAddress";
-import getFormValues from "@/utils/getFormValues";
 import { Dialog, Transition } from "@headlessui/react";
 import { TrashIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { uniqueId } from "lodash";
-import { ChangeEvent, FC, FormEvent, Fragment, createRef, useEffect, useRef, useState } from "react";
 
-import TimeWindowInput from "./TimeWindowInput";
+import { ChangeEvent, FC, FormEvent, Fragment, createRef, useEffect, useState } from "react";
 
 import { Break, Driver, Location, TimeWindow } from "@/types";
 
-import AddressSelectPrompt from "@/components/molecules/prompts/AddressSelectPrompt";
 import { convertTime } from "@/utils/timeHandlers";
-import AutocompleteAddressInput from "../AutoComplete";
-import { Hint } from "../atoms";
+import { uniqueId } from "lodash";
 
 interface IProps {
 	open: boolean;
+	stop: Driver;
 	setOpen: (open: boolean) => void;
 }
-const AddDriver: FC<IProps> = ({ open, setOpen }) => {
-	const [isAddressModalOpen, setAddressModalOpen] = useState(false);
+const EditDriver: FC<IProps> = ({ open, setOpen, stop }) => {
 	const tableData = createRef<HTMLFormElement>();
-	const drivers = useRouteStore((state) => state.drivers);
-	const appendDriver = useRouteStore((state) => state.appendDriver);
+	const updateDriver = useRouteStore((state) => state.updateDriver);
 
-	const [addresses, setAddresses] = useState([]);
-
-	const [initData, setInitData] = useState<Driver>({
-		id: parseInt(uniqueId()),
-		name: "",
-		address: "",
-		max_travel_time: 0,
-		time_window: { startTime: "00:00", endTime: "00:00" },
-		max_stops: 1,
-		break_slots: [],
-		coordinates: { latitude: 0, longitude: 0 },
-	});
+	const [initData, setInitData] = useState<Driver>(stop);
 
 	const saveRoute = async () => {
-		const formData = getFormValues(tableData);
+		await fetchAddressData(initData.address)
+			.then((data) => {
+				// TODO: Rework this to check against geocoding data to verify every address is valid. Currently assuming that any autofill is valid, any selected address is valid.
+				if (initData?.coordinates?.latitude === 0 && initData?.coordinates?.longitude === 0) {
+					throw new Error("Coordinates are invalid. Please try again.");
+				}
 
-		if (formData.address == "") return;
-
-		await fetchAddressData(formData.address).then((data) => {
-			if (data.length > 1 || (initData?.coordinates?.latitude == 0 && initData?.coordinates?.longitude == 0)) {
-				console.log(data);
-				setAddresses(data);
-				setAddressModalOpen(true);
-			}
-		});
-
-		if (initData?.coordinates?.latitude == 0 && initData?.coordinates?.longitude == 0) {
-			console.log("address not found");
-			return;
-		}
-
-		const isAddressADuplicate = drivers.some((driver) => driver.address === initData.address);
-
-		if (isAddressADuplicate) {
-			console.log("address is a duplicate");
-			return;
-		}
-
-		appendDriver(initData);
-		setOpen(false);
+				updateDriver(stop.id, initData);
+				setOpen(false);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
 
 	const handleAddTimeWindow = (timeWindow: TimeWindow, service?: number) => {
@@ -105,6 +76,10 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 		saveRoute();
 	};
 
+	const setAddress = (data: Partial<Location>) => {
+		setInitData({ ...initData, ...data });
+	};
+
 	const removeBreakTimeWindow = (slot: Break, timeWindowId: number) => {
 		const everyBreakButThisOne = initData.break_slots.filter((breakSlot) => breakSlot.id !== slot.id);
 
@@ -122,23 +97,8 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 		});
 	};
 
-	const setAddress = (data: Partial<Location>) => {
-		setInitData({ ...initData, ...data });
-	};
-
 	useEffect(() => {
-		if (open) {
-			setInitData({
-				id: parseInt(uniqueId()),
-				name: "",
-				address: "",
-				max_travel_time: 0,
-				time_window: { startTime: "", endTime: "" },
-				max_stops: 1,
-				break_slots: [],
-				coordinates: { latitude: 0, longitude: 0 },
-			});
-		}
+		if (stop) setInitData(stop);
 	}, [open]);
 
 	return (
@@ -188,19 +148,18 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 									</Transition.Child>
 									<div className="flex h-full flex-col bg-white py-6 shadow-xl">
 										<div className="px-4 sm:px-6">
-											<Dialog.Title className="text-3xl font-semibold leading-6 text-gray-900">New Driver</Dialog.Title>
+											<Dialog.Title className="text-3xl font-semibold leading-6 text-gray-900">
+												Edit Driver
+											</Dialog.Title>
 										</div>
 										<div className="relative mt-6 flex-1 px-4 sm:px-6">
+											{" "}
 											<div className="mt-2">
 												<p className="text-sm text-gray-500">
-													Fill out the table below to start adding and assigning drivers to the map.
+													Fill out the table below to start adding destinations to the map.
 												</p>
 											</div>
-											<form
-												ref={tableData}
-												onSubmit={handleSubmit}
-												className="h-full flex flex-col"
-												onChange={() => console.log(getFormValues(tableData))}>
+											<form ref={tableData} onSubmit={handleSubmit} className="h-full flex flex-col">
 												<section>
 													<div className="flex flex-row  p-2 gap-4">
 														<label className="w-3/5">
@@ -209,17 +168,25 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 																type="text"
 																name="name"
 																placeholder="e.g. Jen Smith"
-																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex  ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800  "
+																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex  ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
 																value={initData?.name}
 																onChange={updateData}
 															/>
 														</label>{" "}
 													</div>
 													<div className="flex flex-row  p-2 gap-4">
-														<AutocompleteAddressInput setData={setAddress} />
+														<AutocompleteAddressInput
+															setData={setAddress}
+															editValue={{
+																display_name: initData.address,
+																lat: initData?.coordinates?.latitude as number,
+																lon: initData?.coordinates?.longitude as number,
+																place_id: 0,
+															}}
+														/>
 													</div>
 													<div className="flex gap-4 p-2">
-														<label className=" ">
+														<label>
 															<Hint
 																label="Max Travel Time"
 																description="How long (roughly in minutes) should the driver take for any given stop?"
@@ -227,18 +194,18 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 															<input
 																name="max_travel_time"
 																type="number"
-																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800  "
+																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
 																value={initData?.max_travel_time}
 																onChange={updateData}
 																aria-label="Max Travel Time"
 															/>
 														</label>
-														<label className="">
+														<label>
 															<Hint label="Max Stops" description="How many stops can the driver make?" />
 															<input
 																name="max_stops"
 																type="number"
-																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800  "
+																className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
 																value={initData?.max_stops}
 																onChange={updateData}
 																aria-label="Max Stops"
@@ -251,6 +218,7 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 															label="Time Window"
 															description="How long is their shift? What is the time window in which they can deliver the order?"
 														/>
+
 														<div className="flex items-center gap-4">
 															<label>
 																<span className="sr-only">Start Time</span>
@@ -263,7 +231,7 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 																			time_window: { ...initData.time_window, startTime: e.target.value },
 																		})
 																	}
-																	className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:placeholder:text-slate-400 text-slate-800  text-slate-800 "
+																	className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
 																/>
 															</label>
 
@@ -279,7 +247,7 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 																			time_window: { ...initData.time_window, endTime: e.target.value },
 																		})
 																	}
-																	className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:placeholder:text-slate-400 text-slate-800  text-slate-800 "
+																	className="items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 "
 																/>
 															</label>
 														</div>
@@ -287,8 +255,7 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 													<div className="flex p-2 flex-col ">
 														<Hint label="Break Slots" description="When can the driver take a break?" />
 														<TimeWindowInput onAddTimeWindow={handleAddTimeWindow} enableService />
-
-														<div className="w-1/2 mt-4">
+														<div className="w-full mt-4">
 															{initData?.break_slots?.map((slot, index) => (
 																<div key={index} className="flex gap-4 items-center py-0.5 ">
 																	<span>{slot.service} min: </span>
@@ -317,30 +284,16 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 														type="button"
 														onClick={() => setOpen(false)}
 														className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
-														{" "}
 														Cancel
-													</button>{" "}
+													</button>
 													<button
 														type="submit"
 														className="ml-auto px-3 py-2  font-semibold text-white bg-slate-500 rounded hover:bg-slate-700 disabled:bg-slate-500/30 disabled:cursor-not-allowed text-sm"
 														disabled={initData?.coordinates?.latitude === 0 && initData?.coordinates?.longitude === 0}>
-														Accept and Close
-													</button>{" "}
-													<button
-														type="submit"
-														className=" mx-2 px-3 py-2  font-semibold text-white bg-indigo-500 rounded hover:bg-indigo-700 disabled:bg-indigo-500/30 disabled:cursor-not-allowed text-sm"
-														disabled={initData?.coordinates?.latitude === 0 && initData?.coordinates?.longitude === 0}>
-														Accept and Add Another
+														Save and Close
 													</button>
 												</div>
 											</form>
-											<AddressSelectPrompt
-												isOpen={isAddressModalOpen}
-												setIsOpen={setAddressModalOpen}
-												addresses={addresses}
-												stop={initData}
-												setStop={setInitData}
-											/>
 										</div>
 									</div>
 								</Dialog.Panel>
@@ -352,4 +305,4 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
 		</Transition.Root>
 	);
 };
-export default AddDriver;
+export default EditDriver;

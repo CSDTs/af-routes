@@ -1,10 +1,11 @@
 import { useRouteStore } from "@/store";
+import { parseDriver, parseStop } from "@/utils/parsingData";
 import { classNames } from "@/utils/styles";
-import { uniqueId } from "lodash";
+
 import * as Papa from "papaparse";
-import { parse } from "path";
-import React, { FC, useCallback, useMemo, useState } from "react";
-import Dropzone, { DropzoneOptions, useDropzone } from "react-dropzone";
+
+import { FC, useMemo, useState } from "react";
+
 interface IProps {
 	dataType: "stop" | "driver";
 }
@@ -16,53 +17,8 @@ const FileUpload: FC<IProps> = ({ dataType }) => {
 	const setData = useRouteStore((state) => state.setData);
 
 	const createParsedEntry = useMemo(() => {
-		if (dataType === "stop")
-			return (data: any) => ({
-				id: parseInt(uniqueId()),
-				customer_name: data?.customer_name,
-				// address: data.address.replace(/\\,/g, ","),
-				address: data.address,
-				drop_off_duration: data.drop_off_duration,
-				time_windows: data.time_windows.split(",").map((tw: string) => {
-					const [startTime, endTime] = tw.split("-");
-					return { startTime, endTime };
-				}),
-				priority: data.priority,
-				coordinates: { latitude: data.latitude, longitude: data.longitude },
-			});
-		else
-			return (data: any) => ({
-				id: parseInt(uniqueId()),
-				// address: row.address.replace(/\\,/g, ","),
-				address: data.address,
-				name: data.name,
-				max_travel_time: data.max_travel_time,
-				time_window: { startTime: data.time_window.split("-")[0], endTime: data.time_window.split("-")[1] },
-				max_stops: data.max_stops,
-				// break_slots: [
-				// 	{
-				// 		id: parseInt(uniqueId()),
-				// 		time_windows: [[data.break_slot_start, data.break_slot_end]],
-				// 		service: data.service,
-				// 	},
-				// ],
-				break_slots: data.break_slots.split(";").map((bs: string) => {
-					const [time, service] = bs.split("(");
-					const window = time.split(",").map((tw: string) => {
-						const [startTime, endTime] = tw.split("-");
-						return { startTime, endTime };
-					});
-
-					console.log(window);
-					const breakLength = service.split(")")[0];
-					return {
-						id: parseInt(uniqueId()),
-						time_windows: window,
-						service: breakLength,
-					};
-				}),
-				coordinates: { latitude: data.latitude, longitude: data.longitude },
-			});
+		if (dataType === "stop") return parseStop;
+		else return parseDriver;
 	}, [dataType]);
 
 	const csvFile = useMemo(() => {
@@ -90,7 +46,6 @@ const FileUpload: FC<IProps> = ({ dataType }) => {
 				complete: (results) => {
 					const parsedData = results.data.map((row: any) => createParsedEntry(row) as any);
 
-					console.log(parsedData);
 					setData(dataType === "stop" ? "locations" : "drivers", parsedData);
 				},
 			});
@@ -137,11 +92,12 @@ const FileUpload: FC<IProps> = ({ dataType }) => {
 
 			<h3 className="font-bold text-2xl mt-2 text-slate-700 capitalize">Upload {dataType}s</h3>
 			<p className="mx-auto  p-3 text-slate-600">
-				You don't have any {dataType}s yet. Upload a CSV to import them. Click{" "}
+				You don't have any {dataType}s yet. Upload a CSV to import them. Drag and drop or click{" "}
+				<em className="font-semibold">Upload</em> above. Click{" "}
 				<a href={csvFile} download className="text-blue-500 font-semibold">
 					here
 				</a>{" "}
-				for an example. You can also add a {dataType} with quick values above.{" "}
+				for an example.
 			</p>
 		</div>
 	);

@@ -1,3 +1,4 @@
+import { AutocompleteAddressInput, Hint, TimeWindowInput } from "@/components/atoms";
 import { useRouteStore } from "@/store";
 import { Location, TimeWindow } from "@/types";
 import { fetchAddressData } from "@/utils/geocodeAddress";
@@ -7,9 +8,6 @@ import { TrashIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { uniqueId } from "lodash";
 import { ChangeEvent, FC, FormEvent, Fragment, createRef, useEffect, useState } from "react";
-import AutocompleteAddressInput from "../AutoComplete";
-import { Hint } from "../atoms";
-import TimeWindowInput from "./TimeWindowInput";
 
 // import AddressSelectPrompt from "./prompts/AddressSelectPrompt";
 
@@ -17,7 +15,7 @@ interface IProps {
 	open: boolean;
 	setOpen: (open: boolean) => void;
 }
-const AddRoute: FC<IProps> = ({ open, setOpen }) => {
+const AddStop: FC<IProps> = ({ open, setOpen }) => {
 	const tableData = createRef<HTMLFormElement>();
 	const locations = useRouteStore((state) => state.locations);
 	const appendLocation = useRouteStore((state) => state.appendLocation);
@@ -282,4 +280,4 @@ const AddRoute: FC<IProps> = ({ open, setOpen }) => {
 		</Transition.Root>
 	);
 };
-export default AddRoute;
+export default AddStop;
