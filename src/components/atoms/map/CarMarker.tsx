@@ -7,7 +7,7 @@ import { Driver } from "../../../types";
 interface MarkerProps {
 	position: [number, number];
 	name: string;
-	vehicle: Driver;
+	vehicle?: Driver;
 }
 
 // const getRandomColor = (str: string) => {
@@ -151,13 +151,13 @@ const CarMarker = ({ position, vehicle }: MarkerProps) => {
 	// 	),
 	// });
 
-	const icon = TruckIcon(vehicle.id);
+	const icon = TruckIcon(vehicle?.id || 2);
 	return (
 		<Marker position={position} icon={icon}>
 			<Popup>
 				<div className="flex flex-col">
-					<span>{vehicle.name}</span>
-					<span>{vehicle.address}</span>
+					<span>{vehicle?.name || "Driver"}</span>
+					<span>{vehicle?.address || "Start and End Location"}</span>
 				</div>
 			</Popup>
 		</Marker>

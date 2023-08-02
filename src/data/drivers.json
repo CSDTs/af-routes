@@ -19,6 +19,13 @@
 			{
 				"time_windows": [{ "startTime": "11:30", "endTime": "12:00" }],
 				"service": 30
+			},
+			{
+				"time_windows": [
+					{ "startTime": "14:00", "endTime": "16:00" },
+					{ "startTime": "19:00", "endTime": "20:00" }
+				],
+				"service": 15
 			}
 		]
 	},
