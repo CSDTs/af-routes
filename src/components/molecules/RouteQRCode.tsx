@@ -7,7 +7,7 @@ interface IProps {
 const RouteQRCode: FC<IProps> = ({ url }) => {
 	const encodedData = encodeURIComponent(url);
 
-	const finalizedURL = `http://localhost:5173/route?data=${encodedData}`;
+	const finalizedURL = `https://af-routing-app.vercel.app/route?data=${encodedData}`;
 
 	return <QRCode value={finalizedURL} renderAs="svg" className="w-full h-full" />;
 };
