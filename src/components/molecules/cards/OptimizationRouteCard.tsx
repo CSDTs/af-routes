@@ -1,5 +1,6 @@
 import { formatTime } from "@/utils/convertTimeDate";
 import { getColor } from "@/utils/getColor";
+import { createClient } from "@supabase/supabase-js";
 import { FC, useCallback, useMemo, useRef } from "react";
 import { Resend } from "resend";
 
@@ -27,23 +28,63 @@ interface VehicleInfo {
 	vehicle: number;
 	description: string;
 	steps: Step[];
+	geometry: string;
 }
 
 interface UnassignedJob {
 	job: number;
 }
 
+const jsonToFile = (data: object, filename: string) => {
+	const jsonData = JSON.stringify(data, null, 2);
+	const blob = new Blob([jsonData], { type: "application/json" });
+	return new File([blob], filename, { type: "application/json" });
+};
+const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_API_KEY);
+
 function QRModal({ data }: any) {
 	let [isOpen, setIsOpen] = useState(false);
 	const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
 	const driverEmail = useRef<HTMLInputElement>(null);
 
+	const [fileID, setFileID] = useState("");
+
 	function closeModal() {
 		setIsOpen(false);
 	}
 
-	function openModal() {
-		setIsOpen(true);
+	async function openModal() {
+		if (data) {
+			// Take that name and shorten it to 50 characters, making sure that it it stays unique. data.geometry must always turn into this
+			const fileName = data.geometry
+				.replace(/[^a-z0-9]/gi, "_")
+				.toLowerCase()
+				.substring(0, 50);
+
+			const file = jsonToFile(data, `${fileName}.json`);
+
+			const { data: listData, error: listError } = await supabase.storage.from("routes").list();
+			//Check if file name exists in listData
+			if (listData) {
+				const fileExists = listData.some((file) => file.name === `${fileName}.json`);
+				if (!fileExists) {
+					const { data: fileData, error } = await supabase.storage.from("routes").upload(file.name, file);
+					if (error) {
+						console.error("Error uploading file:", error);
+						setFileID("");
+						setIsOpen(false);
+					} else {
+						console.log("File uploaded successfully:", fileData);
+						setFileID(fileName);
+						setIsOpen(true);
+					}
+				} else {
+					console.log("File already exists", `${fileName}.json`);
+					setFileID(fileName);
+					setIsOpen(true);
+				}
+			}
+		}
 	}
 
 	const sendEmail = () => {
@@ -109,9 +150,7 @@ function QRModal({ data }: any) {
 									<Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
 										Route QR Code for {data.description}
 									</Dialog.Title>
-									<div className="mt-2 w-full h-full">
-										<RouteQRCode vehicle={data.steps} />
-									</div>
+									<div className="mt-2 w-full h-full">{fileID && <RouteQRCode url={fileID} />}</div>
 
 									<br />
 
@@ -193,6 +232,7 @@ const OptimizationRouteCard: FC<OptimizationProps> = ({ route, drivers, location
 				arrival: step.arrival,
 				duration: step.duration,
 			})),
+			geometry: route.geometry,
 		};
 
 		console.log(vehicles);
@@ -203,7 +243,6 @@ const OptimizationRouteCard: FC<OptimizationProps> = ({ route, drivers, location
 		return extractRouteInfo();
 	};
 
-	console.log(extractRouteInfo());
 	return (
 		<div className={" p-2 bg-slate-50  " + " shadow " + color.shadow} key={route.vehicle}>
 			<div className="flex justify-between items-center">

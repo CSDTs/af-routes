@@ -209,7 +209,17 @@ const useOpenRoute = () => {
 
 		return { coloredGeometry, data: response.data };
 	};
-	return { getDirections, getDirectionsAdvanced, getOptimization };
+
+	const reverseOptimization = async (data: any) => {
+		const geometry = polyline.toGeoJSON(data);
+
+		// const coloredGeometry = geometry.map((route: any, idx: number) => {
+		// 	return { ...route };
+		// });
+
+		return { ...geometry, properties: { color: 2 } };
+	};
+	return { getDirections, getDirectionsAdvanced, getOptimization, reverseOptimization };
 };
 
 export default useOpenRoute;
