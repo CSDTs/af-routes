@@ -72,7 +72,7 @@ interface RouteState {
 
 	setLocations: (locations: Location[]) => void;
 	updateLocation: (id: number, data: Partial<Location>) => void;
-
+	updateDriver: (id: number, data: Partial<Driver>) => void;
 	removeLocation: (id: number) => void;
 	removeDriver: (id: number) => void;
 	setDrivers: (drivers: Driver[]) => void;
@@ -108,6 +108,10 @@ export const useRouteStore = create<RouteState>()((set) => ({
 	updateLocation: (id, data) =>
 		set((state) => ({
 			locations: state.locations.map((location) => (location.id === id ? { ...location, ...data } : location)),
+		})),
+	updateDriver: (id, data) =>
+		set((state) => ({
+			drivers: state.drivers.map((driver) => (driver.id === id ? { ...driver, ...data } : driver)),
 		})),
 	removeLocation: (id) => set((state) => ({ locations: state.locations.filter((location) => location.id !== id) })),
 	setDrivers: (drivers) => set({ drivers }),
