@@ -53,21 +53,30 @@ const RouteQRModal = ({ data }: any) => {
 		}
 	}
 
-	const sendLink = () => {
-		if (!validE164(value) && value !== "+19895011800") {
+	const sendLink = async () => {
+		if (!validE164(value)) {
 			alert("Please enter a valid phone number");
+			return;
 		}
 
-		// else {
-		// 	client.messages
-		// 		.create({
-		// 			body: `From Artisanal Futures: Here is your route, https://af-routing-app.vercel.app/route?data=${fileID}`,
-		// 			from: "+18669846798",
-		// 			to: value,
-		// 		})
-		// 		.then((message) => console.log(message.sid))
-		// 		.done();
-		// }
+		const res = await fetch("/api/sendMessage", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				to: value,
+				body: `Here is your route for today: https://af-routing-app.vercel.app/route?data=${fileID}`,
+			}),
+		});
+
+		const data = await res.json();
+
+		if (data.success) {
+			alert("Message was sent successfully!");
+		} else {
+			alert("There seems to be an error. Please try again later.");
+		}
 	};
 
 	return (
