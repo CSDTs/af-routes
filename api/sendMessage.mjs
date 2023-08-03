@@ -1,4 +1,6 @@
-const client = require("twilio")(process.env.VITE_TWILIO_ACCOUNT_ID, process.env.VITE_TWILIO_AUTH_TOKEN);
+import twilio from "twilio";
+
+const client = twilio(process.env.VITE_TWILIO_ACCOUNT_ID, process.env.VITE_TWILIO_AUTH_TOKEN);
 
 export default async (req, res) => {
 	res.statusCode = 200;
