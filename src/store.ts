@@ -97,6 +97,27 @@ interface LocationTableState {
 	rows: LocationTableRow[];
 	setRows: (rows: LocationTableRow[]) => void;
 }
+interface MenuStore {
+	menuPosition: { x: number; y: number } | null;
+	showMenu: boolean;
+	activeItem: number | null;
+	activeDriver: number | null;
+	openMenu: (position: { x: number; y: number }) => void;
+	closeMenu: () => void;
+	setActiveItem: (data: number | null) => void;
+	setActiveDriver: (data: number | null) => void;
+}
+
+export const useMenuStore = create<MenuStore>((set) => ({
+	menuPosition: null,
+	activeItem: 0,
+	showMenu: false,
+	activeDriver: 0,
+	openMenu: (position) => set({ showMenu: true, menuPosition: position }),
+	closeMenu: () => set({ showMenu: false, menuPosition: null }),
+	setActiveItem: (data) => set({ activeItem: data }),
+	setActiveDriver: (data) => set({ activeDriver: data }),
+}));
 
 export const useRouteStore = create<RouteState>()((set) => ({
 	locations: [],

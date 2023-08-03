@@ -1,9 +1,10 @@
 import CarMarker from "@/components/atoms/map/CarMarker";
-import CustomMarker from "@/components/atoms/map/CustomMarker";
+
+import StopMarker from "@/components/atoms/map/StopMarker";
 import OptimizationRouteCard from "@/components/molecules/cards/OptimizationRouteCard";
 import useOpenRoute from "@/hooks/useOpenRoute";
 import { Step } from "@/types";
-import { formatTime } from "@/utils/convertTimeDate";
+import { convertTime, formatTime } from "@/utils/convertTimeDate";
 import { lookupAddress } from "@/utils/geocodeAddress";
 import { getStyle } from "@/utils/getColor";
 import polyline from "@mapbox/polyline";
@@ -86,23 +87,6 @@ const RoutePage = () => {
 					console.log(err);
 				});
 	}, []);
-	// convert seconds to to a time during the day
-	const convertTime = (seconds: number) => {
-		let hours = Math.floor(seconds / 3600);
-		let minutes = Math.floor((seconds % 3600) / 60);
-		let ampm = hours >= 12 ? "PM" : "AM";
-		hours = hours % 12;
-		hours = hours ? hours : 12; // the hour '0' should be '12'
-		let minutesStr = minutes < 10 ? "0" + minutes : minutes;
-		let strTime = hours + ":" + minutesStr + " " + ampm;
-		return strTime;
-	};
-
-	// convert seconds to minutes
-	const convertMinutes = (seconds: number) => {
-		let minutes = Math.floor(seconds / 60);
-		return minutes;
-	};
 
 	return (
 		<div className="flex">
@@ -177,10 +161,12 @@ const RoutePage = () => {
 								.map((step: any, index: number) => {
 									if (step.type === "job")
 										return (
-											<CustomMarker
+											<StopMarker
 												key={index}
 												position={[step.location[1], step.location[0]]}
 												name={`Step ${index + 1}`}
+												id={step.id}
+												colorMapping={index}
 											/>
 										);
 									else

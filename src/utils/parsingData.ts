@@ -1,6 +1,9 @@
+import { Driver, Location } from "@/types";
 import { uniqueId } from "lodash";
-
+import * as Papa from "papaparse";
 // address: row.address.replace(/\\,/g, ",") was used to replace all the commas in the address with a backslash
+
+type PossibleData = Driver | Location;
 
 export const parseDriver = (data: any) => ({
 	id: parseInt(uniqueId()),
@@ -38,3 +41,23 @@ export const parseStop = (data: any) => ({
 	priority: data.priority,
 	coordinates: { latitude: data.latitude, longitude: data.longitude },
 });
+
+export const parseCSVFile = (file: any, type: string, onComplete: (data: any) => void) => {
+	Papa.parse(file, {
+		header: true,
+		dynamicTyping: true,
+		skipEmptyLines: true,
+		complete: (results) => {
+			const parse = type === "driver" ? parseDriver : parseStop;
+			const parsedData: PossibleData[] = results.data.map((row: any) => parse(row));
+
+			if (type === "driver") onComplete(parsedData as Driver[]);
+			else if (type === "stop") onComplete(parsedData as Location[]);
+		},
+	});
+};
+export const jsonToFile = (data: object, filename: string) => {
+	const jsonData = JSON.stringify(data, null, 2);
+	const blob = new Blob([jsonData], { type: "application/json" });
+	return new File([blob], filename, { type: "application/json" });
+};
