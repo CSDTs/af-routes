@@ -1,15 +1,23 @@
 import { supabase } from "@/utils/db";
 import { jsonToFile } from "@/utils/parsingData";
+import { classNames } from "@/utils/styles";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import PhoneInputWithCountry from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+// import * as twilio from "twilio";
 import RouteQRCode from "./RouteQRCode";
 
+const validE164 = (num: string) => {
+	return /^\+?[1-9]\d{1,14}$/.test(num);
+};
 const RouteQRModal = ({ data }: any) => {
 	let [isOpen, setIsOpen] = useState(false);
 
 	const [fileID, setFileID] = useState("");
 
 	const closeModal = () => setIsOpen(false);
+	const [value, setValue] = useState<any>();
 
 	async function openModal() {
 		if (data) {
@@ -44,6 +52,23 @@ const RouteQRModal = ({ data }: any) => {
 			}
 		}
 	}
+
+	const sendLink = () => {
+		if (!validE164(value) && value !== "+19895011800") {
+			alert("Please enter a valid phone number");
+		}
+
+		// else {
+		// 	client.messages
+		// 		.create({
+		// 			body: `From Artisanal Futures: Here is your route, https://af-routing-app.vercel.app/route?data=${fileID}`,
+		// 			from: "+18669846798",
+		// 			to: value,
+		// 		})
+		// 		.then((message) => console.log(message.sid))
+		// 		.done();
+		// }
+	};
 
 	return (
 		<>
@@ -101,6 +126,27 @@ const RouteQRModal = ({ data }: any) => {
 									</Dialog.Title>
 									<div className="mt-2 w-full h-full">{fileID && <RouteQRCode url={fileID} />}</div>
 
+									<div className="py-5">
+										<label className="text-slate-700 py-2 block text-lg font-medium">Driver's Phone Number</label>
+										<div className="  flex  text-lg flex-row  gap-4 w-full   sm:text-sm rounded-md">
+											<PhoneInputWithCountry
+												className="flex flex-1 text-sm"
+												placeholder="Enter phone number"
+												value={value}
+												onChange={setValue}
+												countrySelectProps={{
+													className: "flex flex-row",
+												}}
+												numberInputProps={{
+													className:
+														"items-center  w-full h-12 px-4 space-x-3 text-left bg-slate-100 rounded-lg shadow-sm sm:flex  ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400 text-slate-800 ", // my Tailwind classes
+												}}
+											/>
+											<button className="text-white bg-green-500 rounded font-semibold px-2" onClick={sendLink}>
+												Send Link
+											</button>
+										</div>
+									</div>
 									<div className="mt-4 w-full flex gap-x-2">
 										<button
 											type="button"
